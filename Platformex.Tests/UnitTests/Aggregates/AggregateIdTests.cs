@@ -2,7 +2,7 @@
 using Platformex.Tests.TestHelpers;
 using Xunit;
 
-namespace Platformex.Tests.UnitTests.Agregates
+namespace Platformex.Tests.UnitTests.Aggregates
 {
     public class AggregateIdTests
     {
