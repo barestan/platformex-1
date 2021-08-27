@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 
 namespace Platformex
 {
-    public class CommandMetadata : MetadataContainer, ICommandMetadata
+    public class CommandMetadata : Metadata, ICommandMetadata
     {
         public CommandMetadata()
         {
@@ -29,11 +29,6 @@ namespace Platformex
         {
         }
 
-        public ISourceId SourceId
-        {
-            get { return GetMetadataValue(MetadataKeys.SourceId, v => new SourceId(v)); }
-            private set => AddOrUpdateValue(MetadataKeys.SourceId, value.Value);
-        }
 
         [JsonIgnore]
         public string CorrelationId

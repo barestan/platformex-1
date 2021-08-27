@@ -1,4 +1,6 @@
-﻿using FluentValidation.Results;
+﻿using System;
+using System.Threading.Tasks;
+using FluentValidation.Results;
 
 namespace Platformex
 {
@@ -23,6 +25,12 @@ namespace Platformex
         }
 
         public static CommandResult Success => new CommandResult(true, null);
+        public static async Task<CommandResult> SucceedAsync(Func<Task> func)
+        {
+            await func();
+            return new CommandResult(true, null);
+        }
+
         public static CommandResult Fail(string message) => new CommandResult(false, message);
     }
 
