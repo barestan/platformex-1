@@ -14,7 +14,7 @@ namespace Siam.Application
         public ICollection<MemoStatusHistory> History { get; } = new List<MemoStatusHistory>();
     }
     
-    public class MemoState :  AggregateStateWithProvider<MemoId, MemoState, MemoModel>, IMemoState,
+    public class MemoState :  AggregateStateEx<MemoId, MemoState, MemoModel>, IMemoState,
     ICanApply<MemoUpdated, MemoId>,
     ICanApply<SigningStarted, MemoId>,
     ICanApply<MemoSigned, MemoId>,
@@ -22,7 +22,6 @@ namespace Siam.Application
     ICanApply<MemoRejected, MemoId>
     {
         public MemoState(IDbProvider<MemoModel> provider) : base(provider) { }
-
         public MemoDocument Document => Model.Document;
         public MemoStatus Status => Model.Status;
         public IEnumerable<MemoStatusHistory> History => Model.History;

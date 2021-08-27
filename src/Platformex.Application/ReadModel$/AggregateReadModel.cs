@@ -8,7 +8,7 @@ namespace Platformex.Application
         where TReadModel : class, IReadModel
     {
         protected string Id => this.GetPrimaryKeyString();
-        protected override Type GetIdenitityType() => typeof(TIdentity);
+        protected override Type GetIdentityType() => typeof(TIdentity);
 
         protected override string GetReadModelId(IDomainEvent domainEvent) => domainEvent.GetIdentity().Value;
     }

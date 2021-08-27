@@ -107,9 +107,9 @@ namespace Platformex.Infrastructure
 
         public void WithCommands()
         {
-            var assembles = _aggregateDefinition.AggreagteType.Assembly.GetReferencedAssemblies()
+            var assembles = _aggregateDefinition.AggregateType.Assembly.GetReferencedAssemblies()
                 .Select(i=>i.ToString()).ToList();
-            assembles.Add(_aggregateDefinition.AggreagteType.Assembly.GetName().ToString());
+            assembles.Add(_aggregateDefinition.AggregateType.Assembly.GetName().ToString());
             
             //TODO: Рефакторнг
             foreach (var asm in AppDomain.CurrentDomain.GetAssemblies()) {

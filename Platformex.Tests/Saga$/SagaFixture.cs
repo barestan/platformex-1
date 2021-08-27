@@ -28,12 +28,12 @@ namespace Platformex.Tests
         }
         public ISagaFixtureArranger<TSaga, TSagaState> For()
         {
-            _testKit.Platform.EventPublished += (sender, args) =>
+            _testKit.Platform.EventPublished += (_, args) =>
             {
                 if (_isMonitoring) 
                     _events.Push(args.DomainEvent);
             };
-            _testKit.Platform.CommandExecuted += (sender, args) =>
+            _testKit.Platform.CommandExecuted += (_, args) =>
             {
                 if (_isMonitoring) 
                     _commands.Push(args.Command);

@@ -5,7 +5,7 @@
         ICommandMetadata Metadata { get; init; }
     }
 
-    public interface ICommand<T> : ICommand where T : Identity<T>
+    public interface ICommand<out T> : ICommand where T : Identity<T>
     {
         T Id { get; }
     }
@@ -14,12 +14,12 @@
     {
         public ICommandMetadata Metadata { get; init; }
 
-        public Command()
+        protected Command()
         {
             Metadata = new CommandMetadata(SourceId.New);
         }
-        
-        public Command(ICommandMetadata metadata)
+
+        protected Command(ICommandMetadata metadata)
         {
             Metadata = metadata;
         }

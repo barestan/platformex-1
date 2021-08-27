@@ -15,7 +15,7 @@ namespace System.Runtime.CompilerServices
 
 namespace Platformex
 {
-    public record AggregateDefinition(Type IdentityType, Type AggreagteType, Type InterfaceType, Type StateType);
+    public record AggregateDefinition(Type IdentityType, Type AggregateType, Type InterfaceType, Type StateType);
     public record CommandDefinition(string Name, Type IdentityType, Type CommandType, bool IsPublic);
     public record QueryDefinition(string Name,Type QueryType, Type ResultType, bool IsPublic);
 
@@ -27,7 +27,7 @@ namespace Platformex
         public readonly Dictionary<string, QueryDefinition> Queries = new();
         public AggregateDefinition Aggregate<TIdentity>() where TIdentity : Identity<TIdentity> 
             => Aggregates[typeof(TIdentity)];
-        private readonly List<Assembly> _applicationPartsAssemlies = new();
+        private readonly List<Assembly> _applicationPartsAssemblies = new();
 
         public void Register(AggregateDefinition definition)
         {
@@ -44,18 +44,18 @@ namespace Platformex
         public IEnumerable<Assembly> Assemblies =>
             Aggregates.Values.SelectMany(i => new []
             {
-                i.AggreagteType.Assembly,
+                i.AggregateType.Assembly,
                 i.IdentityType.Assembly,
                 i.InterfaceType.Assembly,
                 i.StateType.Assembly
-            }).Concat(_applicationPartsAssemlies)
+            }).Concat(_applicationPartsAssemblies)
               .Distinct();
 
         public void RegisterApplicationParts(Assembly contextAppliactionParts)
         {
-            if (_applicationPartsAssemlies.Contains(contextAppliactionParts)) return;
+            if (_applicationPartsAssemblies.Contains(contextAppliactionParts)) return;
             
-            _applicationPartsAssemlies.Add(contextAppliactionParts);
+            _applicationPartsAssemblies.Add(contextAppliactionParts);
 
         }
 

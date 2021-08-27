@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using Platformex;
 using Platformex.Domain;
@@ -11,7 +12,7 @@ namespace Siam.MemoContext.Domain
         MemoStatus Status { get; }
         IEnumerable<MemoStatusHistory> History { get; }
     }
-    
+    [Description("Памятка")]
     public class MemoAggregate : Aggregate<MemoId, IMemoState, MemoAggregate>, IMemo
     {
         public async Task<CommandResult> Do(UpdateMemo command)

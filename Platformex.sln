@@ -27,9 +27,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Siam.Host", "src\Siam.Host\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Siam.Data", "src\Siam.Data\Siam.Data.csproj", "{2BB044BB-5064-487B-B383-E5D90FEC0B25}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Siam.Tests", "src\Siam.Tests\Siam.Tests.csproj", "{0507A52A-0182-4251-A764-594B19482008}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Siam.Tests", "src\Siam.Tests\Siam.Tests.csproj", "{0507A52A-0182-4251-A764-594B19482008}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Platformex.Tests", "Platformex.Tests\Platformex.Tests.csproj", "{E9B8C916-84EA-4CFB-8D55-76F3CEA1BB91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Platformex.Tests", "Platformex.Tests\Platformex.Tests.csproj", "{E9B8C916-84EA-4CFB-8D55-76F3CEA1BB91}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

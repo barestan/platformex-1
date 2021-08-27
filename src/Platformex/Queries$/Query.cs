@@ -4,12 +4,12 @@ namespace Platformex
     {
         public ICommonMetadata Metadata { get; init; }
 
-        public Query()
+        protected Query()
         {
             Metadata = new CommandMetadata();
         }
 
-        public Query(ICommandMetadata metadata)
+        protected Query(ICommandMetadata metadata)
         {
             Metadata = metadata;
         }

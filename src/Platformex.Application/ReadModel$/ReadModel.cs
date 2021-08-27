@@ -25,14 +25,14 @@ namespace Platformex.Application
 
         private IDisposable _timer;
 
-        protected virtual Type GetIdenitityType() => null;
+        protected virtual Type GetIdentityType() => null;
         protected virtual string GetReadModelName() => GetType().Name.Replace("ReadModel", "");
         protected string GetPrettyName() => $"{GetReadModelName()}:{this.GetPrimaryKeyString()}";
 
         public sealed override async Task OnActivateAsync()
         {
             //Это корневой менеджер
-            bool isManager = this.GetPrimaryKeyString() == null;
+            var isManager = this.GetPrimaryKeyString() == null;
 
             Logger.LogInformation(isManager
                 ? $"(Read Model [{GetPrettyName()}] activating..."
@@ -49,7 +49,7 @@ namespace Platformex.Application
                 {
                     NoDeactivateRoot();
                     //Это фильтр на тип агрегата (null - без фильтра)
-                    var identytyType = GetIdenitityType();
+                    var identytyType = GetIdentityType();
 
 
                     //Асинхронные подписки

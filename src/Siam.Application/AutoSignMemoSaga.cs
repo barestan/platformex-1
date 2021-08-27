@@ -15,9 +15,7 @@ namespace Siam.Application
             return domainEvent.AggregateEvent.Id.Value;
         }
 
-        public Task HandleAsync(IDomainEvent<MemoId, MemoSigned> domainEvent)
-        {
-            return ExecuteAsync(new ConfirmSigningMemo(domainEvent.AggregateIdentity));
-        }
+        public Task HandleAsync(IDomainEvent<MemoId, MemoSigned> domainEvent) 
+            => ExecuteAsync(new ConfirmSigningMemo(domainEvent.AggregateIdentity));
     }
 }

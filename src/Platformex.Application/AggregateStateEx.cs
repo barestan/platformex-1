@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Platformex.Application
 {
@@ -6,20 +7,33 @@ namespace Platformex.Application
     {
         string Id { get; set; }
     }
-    public abstract class AggregateStateWithProvider<TIdentity, TEventApplier, TModel> :AggregateState<TIdentity, TEventApplier> 
+    public abstract class AggregateStateEx<TIdentity, TEventApplier, TModel> :AggregateState<TIdentity, TEventApplier> 
         where TIdentity : Identity<TIdentity>
         where TModel : IModel
     {
         // ReSharper disable once MemberCanBePrivate.Global
         protected readonly IDbProvider<TModel> Provider;
         protected TModel Model;
-        protected AggregateStateWithProvider(IDbProvider<TModel> provider)
+
+        public static TEventApplier FromModel(TModel model)
+        {
+            var item = (TEventApplier)Activator.CreateInstance(typeof(TEventApplier), new object[]{null});
+
+            (item as AggregateStateEx<TIdentity, TEventApplier, TModel>)?.SetModel(model);
+            return item;
+        }
+        private void SetModel(TModel model)
+        {
+            Model = model;
+        }
+
+        protected AggregateStateEx(IDbProvider<TModel> provider)
         {
             Provider = provider;
         }
         protected override async Task<bool> LoadStateInternal(TIdentity id)
         {
-            var isCreated = false;
+            bool isCreated;
             (Model,isCreated) = await Provider.LoadOrCreate(id.Value);
             Model.Id ??= id.Value;
             return isCreated;

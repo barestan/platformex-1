@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Xunit;
 using Platformex.Application;
 using Platformex.Domain;
-using Xunit;
 
 namespace Platformex.Tests
 {
@@ -32,7 +32,7 @@ namespace Platformex.Tests
         }
         public IAggregateFixtureArranger<TAggregate, TIdentity, TState> For(TIdentity aggregateId)
         {
-            _testKit.Platform.EventPublished += (sender, args) =>
+            _testKit.Platform.EventPublished += (_, args) =>
             {
                 if (_isMonitoring) 
                     _events.Push(args.DomainEvent);
