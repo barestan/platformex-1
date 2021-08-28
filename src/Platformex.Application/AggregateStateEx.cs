@@ -5,7 +5,7 @@ namespace Platformex.Application
 {
     public interface IModel
     {
-        string Id { get; set; }
+        Guid Id { get; set; }
     }
     public abstract class AggregateStateEx<TIdentity, TEventApplier, TModel> :AggregateState<TIdentity, TEventApplier> 
         where TIdentity : Identity<TIdentity>
@@ -34,8 +34,8 @@ namespace Platformex.Application
         protected override async Task<bool> LoadStateInternal(TIdentity id)
         {
             bool isCreated;
-            (Model,isCreated) = await Provider.LoadOrCreate(id.Value);
-            Model.Id ??= id.Value;
+            (Model,isCreated) = await Provider.LoadOrCreate(id.GetGuid());
+            Model.Id = Model.Id == Guid.Empty ? id.GetGuid() : Model.Id;
             return isCreated;
         }
 
@@ -44,7 +44,7 @@ namespace Platformex.Application
         public override async Task RollbackTransaction()
         {
             await Provider.RollbackTransaction();
-            await LoadStateInternal(Id);
+            await LoadStateInternal(Identity);
         }
 
         protected override async Task AfterApply(IAggregateEvent<TIdentity> @event)

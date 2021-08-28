@@ -14,11 +14,11 @@ namespace Platformex.Application
         {
             ApplyMethods = typeof(TEventApplier).GetAggregateEventApplyMethods<TIdentity, TEventApplier>();
         }
-        public TIdentity Id { get; protected set; }
+        public TIdentity Identity { get; protected set; }
 
         public Task<bool> LoadState(TIdentity id)
         {
-            Id = id;
+            Identity = id;
             return LoadStateInternal(id);
         }
 

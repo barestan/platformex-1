@@ -105,7 +105,7 @@ namespace Platformex.Domain
         }
 
 
-        public TIdentity AggregateId => State?.Id ?? this.GetId<TIdentity>();
+        public TIdentity AggregateId => State?.Identity ?? this.GetId<TIdentity>();
         protected TState State { get; private set;}
         internal void TestOnlySetState(TState newState) => State = newState;
         internal TState TestOnlyGetState() => State;

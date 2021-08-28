@@ -17,31 +17,31 @@ namespace Siam.MemoContext.Domain
     {
         public async Task<CommandResult> Do(UpdateMemo command)
         {
-            await Emit(new MemoUpdated(State.Id, command.Document));
+            await Emit(new MemoUpdated(State.Identity, command.Document));
             return CommandResult.Success;
         }
 
         public async Task<CommandResult> Do(SignMemo command)
         {
-            await Emit(new SigningStarted(State.Id, command.UserId));
+            await Emit(new SigningStarted(State.Identity, command.UserId));
             return CommandResult.Success;
         }
 
         public async Task<CommandResult> Do(ConfirmSigningMemo command)
         {
-            await Emit(new MemoSigned(State.Id));
+            await Emit(new MemoSigned(State.Identity));
             return CommandResult.Success;
         }
 
         public async Task<CommandResult> Do(RejectMemo command)
         {
-            await Emit(new RejectionStarted(State.Id, command.UserId, command.RejectionReason));
+            await Emit(new RejectionStarted(State.Identity, command.UserId, command.RejectionReason));
             return CommandResult.Success;
         }
 
         public async Task<CommandResult> Do(ConfirmRejectionMemo command)
         {
-            await Emit(new MemoRejected(State.Id));
+            await Emit(new MemoRejected(State.Identity));
             return CommandResult.Success;
         }
     }

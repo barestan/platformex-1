@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Platformex.Application;
 
 namespace Platformex.Tests.TestHelpers
@@ -13,8 +14,8 @@ namespace Platformex.Tests.TestHelpers
         ICanApply<ThingySagaExceptionRequestedEvent, ThingyId>,
         ICanApply<ThingySagaStartRequestedEvent, ThingyId>
     {
-        // IModel.Id
-        public string Id { get; set; }
+        // IModel.Identity
+        public Guid Id { get; set; }
 
         private readonly List<PingId> _pingsReceived = new List<PingId>();
         public IReadOnlyCollection<PingId> PingsReceived => _pingsReceived; 

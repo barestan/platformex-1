@@ -8,7 +8,7 @@ namespace Siam.Application
 {
     public class MemoModel : IModel 
     {
-        public string Id { get; set; }
+        public Guid Id { get; set; }
         public MemoDocument Document { get; set; }
         public MemoStatus Status { get; set; }
         public ICollection<MemoStatusHistory> History { get; } = new List<MemoStatusHistory>();

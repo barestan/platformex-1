@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Platformex.Application;
 using Siam.Application.Queries;
 using Siam.Data.MemoContext;
+using Siam.MemoContext;
 
 namespace Siam.Data.QueryHandlers
 {
@@ -19,10 +20,11 @@ namespace Siam.Data.QueryHandlers
 
         protected override Task<MemoListItem> ExecuteAsync(MemoFromIdQuery query)
         {
-            return _context.Memos.Where(i => i.Id == query.MemoId)
+            var id = new MemoId(query.MemoId).GetGuid();
+            return _context.Memos.Where(i => i.Id == id)
                 .Select(i => new MemoListItem
                 {
-                    Id = i.Id,
+                    Id = MemoId.With(i.Id).Value,
                     Document = i.Model.Document,
                     History = i.Model.History,
                     Status = i.Model.Status

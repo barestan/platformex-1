@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,27 +9,27 @@ namespace Platformex.Application
 {
     public class InMemoryDbProvider<TModel> : IDbProvider<TModel> where TModel : new()
     {
-        private static readonly Dictionary<string, TModel> Items = new();
-        private Dictionary<string, TModel> _transactionalItems;
+        private static readonly Dictionary<Guid, TModel> Items = new();
+        private Dictionary<Guid, TModel> _transactionalItems;
 
-        public InMemoryDbProvider(Dictionary<string, TModel> items = null)
+        public InMemoryDbProvider(Dictionary<Guid, TModel> items = null)
         {
             if (items == null) return;
             foreach (var (key, value) in items)
                 Items.Add(key, value);
         }
 
-        private Task<TModel> FindAsync(string id) 
+        private Task<TModel> FindAsync(Guid id) 
             => Task.FromResult(Items.ContainsKey(id) ? Items[id] : default);
 
         // ReSharper disable once UnusedParameter.Local
-        private TModel Create(string id)
+        private TModel Create(Guid id)
         {
             var model = new TModel();
             return model;
         }
 
-        public async Task<(TModel model, bool isCreated)> LoadOrCreate(string id)
+        public async Task<(TModel model, bool isCreated)> LoadOrCreate(Guid id)
         {
             var model = await FindAsync(id);
             var isCreated = true;
@@ -41,7 +42,7 @@ namespace Platformex.Application
             return (model, isCreated);
         }
 
-        public Task SaveChangesAsync(string id, TModel model)
+        public Task SaveChangesAsync(Guid id, TModel model)
         {
             if (_transactionalItems.ContainsKey(id))
                 _transactionalItems[id] = model;

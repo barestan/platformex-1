@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
@@ -9,8 +10,7 @@ namespace Siam.Data.MemoContext
     public class Memo
     {
         [Key]
-        [MaxLength(256)]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
 
         public MemoModel Model { get; set; }
 

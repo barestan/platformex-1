@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Siam.Data.Migrations
 {
@@ -10,7 +11,7 @@ namespace Siam.Data.Migrations
                 name: "Memos",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Model = table.Column<string>(type: "nvarchar(max)", maxLength: 2147483647, nullable: true)
                 },
                 constraints: table =>

@@ -91,7 +91,8 @@ namespace Platformex.Infrastructure
 
             var grain = (IAggregate) _client.GetGrain(aggregateDefinition.InterfaceType, aggregateId);
 
-            return await grain.DoAsync(command);
+            var result = await grain.DoAsync(command);
+            return result;
         }
 
         public async Task PublishEvent(IDomainEvent domainEvent)
