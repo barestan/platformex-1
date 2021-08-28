@@ -37,7 +37,7 @@ namespace Siam.Tests
         public void TestSaga()
         {
             var id = MemoId.New;
-            var fixture = new SagaFixture<AutoSignMemoSaga, EmptySagaState>(this);
+            var fixture = new SagaFixture<AutoRejectMemoSaga, EmptySagaState>(this);
 
             fixture.For()
                 .GivenNothing()

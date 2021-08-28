@@ -187,7 +187,7 @@ namespace Platformex.Domain
         {
             var now = DateTimeOffset.UtcNow;
             var eventId = EventId.NewDeterministic(GuidFactories.Deterministic.Namespaces.Events, $"{AggregateId.Value}-v{now.ToUnixTime()}");
-            var eventMetadata = new EventMetadata(_pinnedCommand.Metadata)
+            var eventMetadata = new EventMetadata()
             {
                 Timestamp = now,
                 AggregateSequenceNumber = 0,
@@ -197,6 +197,8 @@ namespace Platformex.Domain
                 EventName = @event.GetPrettyName(),
                 EventVersion = 1
             };
+
+            eventMetadata.Merge(_pinnedCommand.Metadata);
 
             eventMetadata.AddOrUpdateValue(MetadataKeys.TimestampEpoch, now.ToUnixTime().ToString());
             return eventMetadata;

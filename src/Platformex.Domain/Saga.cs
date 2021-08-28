@@ -52,10 +52,23 @@ namespace Platformex.Domain
             => _logger ??= ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
 
         private IDisposable _timer;
+        protected IDomainEvent PinnedEvent;
 
         protected Task<CommandResult> ExecuteAsync<TIdentity>(ICommand<TIdentity> command) 
             where TIdentity : Identity<TIdentity>
         {
+            var commandMetadata = (CommandMetadata) command.Metadata;
+
+            if (PinnedEvent != null)
+            {
+                commandMetadata.Merge(PinnedEvent.Metadata);
+            }
+
+            if (!command.Metadata.CorrelationIds.Contains(IdentityString))
+            {
+                commandMetadata.CorrelationIds = new List<string>(command.Metadata.CorrelationIds) { this.GetPrimaryKeyString() };
+            }
+
             var platform = ServiceProvider.GetService<IPlatform>();
             return platform?.ExecuteAsync(command.Id.Value, command);
         }
@@ -65,7 +78,6 @@ namespace Platformex.Domain
        
         public TSagaState State { get; private set; }
 
-        protected virtual string GetSagaId(IDomainEvent startDomainEvent) => startDomainEvent.GetIdentity().Value;
         protected abstract Task<TSagaState> LoadStateAsync();
         protected abstract Task SaveStateAsync();
 
@@ -83,6 +95,8 @@ namespace Platformex.Domain
                 Logger.LogWarning( $"(Saga [{GetPrettyName()}] event {e.GetPrettyName()} is not start-event.");
                 return; //Игнорируем 
             }
+
+            PinnedEvent = e;
             
             //Запускаем транзакцию
             await State.BeginTransaction();
@@ -182,27 +196,39 @@ namespace Platformex.Domain
             await eventStream.SubscribeAsync(async (data, _) =>
             {
                 Logger.LogInformation($"(Saga Manager [{GetSagaName()}] received event {data.GetPrettyName()}.");
-
                 
                 //Определяем ID саги
-                var sagaId = GetSagaId(data);
+                var prefix = GetSagaPrefix();
+                var correlatedSagas = GetCorrelatedSagas(prefix, data.Metadata.CorrelationIds);
 
-                var saga = GrainFactory.GetGrain<ISaga>(sagaId, GetType().FullName);
-                
-                Logger.LogInformation(
-                    $"(Saga Manager [{GetSagaName()}] send event to Saga {data.GetPrettyName()}.");
-                //Вызываем сагу для обработки события
-                if (isSync)
+                if (!correlatedSagas.Any())
+                    correlatedSagas.Add($"{prefix}-{Guid.NewGuid()})");
+
+                foreach (var sagaId in correlatedSagas)
                 {
-                    await saga.ProcessEvent(data).ConfigureAwait(false);
-                }
-                else
-                {
-                    var __ = saga.ProcessEvent(data).ConfigureAwait(false);
+                    var saga = GrainFactory.GetGrain<ISaga>(sagaId, GetType().FullName);
+
+                    Logger.LogInformation(
+                        $"(Saga Manager [{GetSagaName()}] send event to Saga {data.GetPrettyName()}.");
+                    //Вызываем сагу для обработки события
+                    if (isSync)
+                    {
+                        await saga.ProcessEvent(data).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        var __ = saga.ProcessEvent(data).ConfigureAwait(false);
+                    }
                 }
 
             });
         }
+
+        private ICollection<string> GetCorrelatedSagas(string prefix, IReadOnlyCollection<string> correlationIds) 
+            => correlationIds.Where(i => i.StartsWith(prefix)).ToList();
+
+        private string GetSagaPrefix() => GetType().FullName;
+
         public override Task OnDeactivateAsync()
         {
             Logger.LogInformation(this.GetPrimaryKeyString() == null

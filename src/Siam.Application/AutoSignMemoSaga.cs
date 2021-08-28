@@ -1,21 +1,29 @@
 ﻿using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Platformex;
 using Platformex.Domain;
 using Siam.MemoContext;
 
 namespace Siam.Application
 {
-    public class AutoSignMemoSaga : StatelessSaga<AutoSignMemoSaga>,
-        IStartedBy<MemoId,MemoUpdated>,
-        ISubscribeTo<MemoId,MemoSigned>
+    [Subscriber]
+    public class AutoRejectMemoSaga : StatelessSaga<AutoRejectMemoSaga>,
+        IStartedBy<MemoId,RejectionStarted>,
+        ISubscribeTo<MemoId,MemoRejected>
     {
-        public async Task<string> HandleAsync(IDomainEvent<MemoId, MemoUpdated> domainEvent)
+
+        public string Test;
+        public async Task<string> HandleAsync(IDomainEvent<MemoId, RejectionStarted> domainEvent)
         {
-            await ExecuteAsync(new SignMemo(domainEvent.AggregateIdentity, "TestUser"));
+            await ExecuteAsync(new ConfirmRejectionMemo(domainEvent.AggregateIdentity));
+            Test = "100";
             return domainEvent.AggregateEvent.Id.Value;
         }
 
-        public Task HandleAsync(IDomainEvent<MemoId, MemoSigned> domainEvent) 
-            => ExecuteAsync(new ConfirmSigningMemo(domainEvent.AggregateIdentity));
+        public Task HandleAsync(IDomainEvent<MemoId, MemoRejected> domainEvent)
+        {
+            Logger.LogInformation("ОК!");
+            return Task.CompletedTask;
+        }
     }
 }
