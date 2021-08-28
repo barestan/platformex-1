@@ -51,6 +51,9 @@ namespace Siam.Host
                             logging.SetMinimumLevel(LogLevel.Information);
                         })
 
+                        //Reminders в памяти
+                        .UseInMemoryReminderService()
+
                         //Конфигурация приложения
                         .ConfigurePlatformex(p =>
                         {

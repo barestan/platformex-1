@@ -14,4 +14,8 @@
       <ProjectReference Include="..\Siam.MemoContext\Siam.MemoContext.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Orleans_CodeGenInputs Remove="MemoJob.cs" />
+    </ItemGroup>
+
 </Project>
