@@ -226,6 +226,10 @@ namespace Platformex.Domain
                 await AfterApplyingCommand();
                 
             }
+            else
+            {
+                await context.Invoke();
+            }
         }
     }
 }
