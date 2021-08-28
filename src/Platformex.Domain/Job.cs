@@ -75,5 +75,12 @@ namespace Platformex.Domain
 
             Logger.LogInformation($"(Job [{GetJobName()}] executed");
         }
+        public override Task OnDeactivateAsync()
+        {
+            Logger.LogInformation($"(Job [{GetPrettyName()}] deactivated.");
+
+            return base.OnDeactivateAsync();
+        }
+
     }
 }

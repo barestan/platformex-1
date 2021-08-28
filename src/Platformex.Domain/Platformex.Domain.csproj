@@ -23,4 +23,8 @@
       <None Remove="Platformex.Domain.csproj.DotSettings" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Orleans_CodeGenInputs Remove="ISubscribeAsynchronousTo.cs" />
+    </ItemGroup>
+
 </Project>

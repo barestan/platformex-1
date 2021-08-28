@@ -2,6 +2,7 @@ using System.Net;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Orleans;
 using Orleans.Configuration;
 using Orleans.Hosting;
 using Platformex.Infrastructure;
@@ -72,7 +73,10 @@ namespace Siam.Host
                             p.ConfigureGraphQl(options => options.BasePath = "graphql")
                                 .WithConsole(options => options.BasePath = "graphql-console");
 
-                        });
+                        })
+
+                        //Orleans Dashboard
+                        .UseDashboard(options => { options.Port = 8081;});
                 });
         
     }
