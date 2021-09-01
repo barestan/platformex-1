@@ -37,7 +37,7 @@ namespace Platformex.Web.GraphQL
         {
             app.UseSwagger();
 
-            var options = app.ApplicationServices.GetRequiredService<EventFlySwaggerOptions>();
+            var options = app.ApplicationServices.GetRequiredService<PlatformexOpenApiOptions>();
             app.UseSwaggerUI(c =>
             {
                 c.SwaggerEndpoint("/" + options.Url.Trim('/') + "/v1/swagger.json", options.Name);

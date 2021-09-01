@@ -14,6 +14,8 @@ namespace Platformex.Application
     [Reentrant]
     public abstract class ReadModel<TReadModel> : Grain, IReadModel where TReadModel : class, IReadModel
     {
+        protected abstract string GetReadModelId(IDomainEvent domainEvent);
+
         private static readonly IReadOnlyDictionary<Type, Func<TReadModel, IDomainEvent, Task>> ApplyMethods = typeof(TReadModel)
             .GetReadModelEventApplyMethods<TReadModel>();
         
@@ -117,8 +119,6 @@ namespace Platformex.Application
 
             });
         }
-
-        protected abstract string GetReadModelId(IDomainEvent domainEvent);
 
         public virtual async Task ProcessEvent(IDomainEvent e)
         {

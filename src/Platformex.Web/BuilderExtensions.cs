@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Platformex.Infrastructure;
 
@@ -21,5 +22,25 @@ namespace Platformex.Web
             builder.ConfigureWebApi(_ => { });
             return builder;
         }
+        public static PlatformBuilder ConfigureServices(this PlatformBuilder builder, Action<IServiceCollection, IConfiguration> configAction)
+        {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                    
+            var configuration = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{environment}.json", optional: true)
+                .AddEnvironmentVariables()
+                .Build();
+
+            builder.AddConfigureServicesActions(collection =>
+            {
+                configAction(collection, configuration);
+            });
+
+
+            return builder;
+        }
+
+
     }
 }

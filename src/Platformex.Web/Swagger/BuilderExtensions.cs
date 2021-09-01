@@ -13,9 +13,9 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Platformex.Web.Swagger
 {
-    public sealed class EventFlySwaggerOptions
+    public sealed class PlatformexOpenApiOptions
     {
-        public EventFlySwaggerOptions(string url, string name)
+        public PlatformexOpenApiOptions(string url, string name)
         {
             Url = url;
             Name = name;
@@ -27,9 +27,9 @@ namespace Platformex.Web.Swagger
 
     public static class BuilderExtensions
     {
-        public static PlatformBuilder WithSwagger(this PlatformBuilder builder, Action<EventFlySwaggerOptions> optionsBuilder)
+        public static PlatformBuilder WithOpenApi(this PlatformBuilder builder, Action<PlatformexOpenApiOptions> optionsBuilder)
         {
-            var options = new EventFlySwaggerOptions("swagger", Assembly.GetEntryAssembly()?.GetName().Name);
+            var options = new PlatformexOpenApiOptions("swagger", Assembly.GetEntryAssembly()?.GetName().Name);
             optionsBuilder(options);
             builder.AddConfigureServicesActions(services =>
             {
@@ -38,6 +38,9 @@ namespace Platformex.Web.Swagger
                 services.TryAdd(ServiceDescriptor
                     .Transient<IApiDescriptionGroupCollectionProvider,
                         CommandsApiDescriptionGroupCollectionProvider>());
+                            
+                services.AddSingleton<IApiDescriptionGroupCollectionProvider,
+                    CommandsApiDescriptionGroupCollectionProvider>();
 
                 services.AddSwaggerGen(c =>
                 {
@@ -82,7 +85,7 @@ namespace Platformex.Web.Swagger
         //{
 
         //    app.UseSwagger();
-        //    var options = app.ApplicationServices.GetRequiredService<EventFlySwaggerOptions>();
+        //    var options = app.ApplicationServices.GetRequiredService<PlatformexOpenApiOptions>();
         //    app.UseSwaggerUI(c =>
         //    {
         //        c.SwaggerEndpoint("/" + options.Url.Trim('/') + "/v1/swagger.json", options.Name);

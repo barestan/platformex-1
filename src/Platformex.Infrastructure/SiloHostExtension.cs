@@ -14,6 +14,7 @@ namespace Platformex.Infrastructure
         public static ISiloHostBuilder ConfigurePlatformex(this ISiloHostBuilder builder, Action<PlatformBuilder> configureAction)
         {
             var platform = new Platform();
+
             var platformBuilder = new PlatformBuilder(platform); 
             configureAction(platformBuilder);
 
