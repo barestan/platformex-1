@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Platformex.Domain
+namespace Platformex
 {
     public abstract class Entity<TIdentity> : ValueObject, IEntity<TIdentity>
-        where TIdentity : IIdentity
     {
         protected Entity(TIdentity id)
         {
@@ -14,11 +13,6 @@ namespace Platformex.Domain
         }
 
         public TIdentity Id { get; }
-
-        public IIdentity GetIdentity()
-        {
-            return Id;
-        }
 
         protected override IEnumerable<object> GetEqualityComponents()
         {

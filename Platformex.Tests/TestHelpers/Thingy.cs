@@ -1,6 +1,4 @@
-﻿using Platformex.Domain;
-
-namespace Platformex.Tests.TestHelpers
+﻿namespace Platformex.Tests.TestHelpers
 {
     public class Thingy : Entity<ThingyId>
     {

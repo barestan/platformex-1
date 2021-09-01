@@ -20,7 +20,7 @@ namespace Platformex.Domain
         private static readonly IReadOnlyDictionary<Type, Func<TEventApplier, ICommand, Task<CommandResult>>> DoCommands;
         private ICommand _pinnedCommand;
 
-        protected SecurityContext SecurityContext;  
+        protected SecurityContext SecurityContext { get; private set; }
         static Aggregate()
         {
             DoCommands = typeof(TEventApplier).GetAggregateDoMethods<TIdentity, TEventApplier>();
@@ -69,7 +69,7 @@ namespace Platformex.Domain
             await State.CommitTransaction();
 
             /*
-             * TODO:В это месте необходимо обеспечить синхронизацию трензакицй и отрпавки событий в шину.
+             * TODO:В это месте необходимо обеспечить синхронизацию транзакций и отправки событий в шину.
              * Если после сохранения состояния и до отправки сооющения произошел сбой, то при восстановления
              * нужно повтроно отпавить события в шину 
              */

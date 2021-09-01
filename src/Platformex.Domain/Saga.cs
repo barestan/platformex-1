@@ -78,9 +78,6 @@ namespace Platformex.Domain
        
         public TSagaState State { get; private set; }
 
-        protected abstract Task<TSagaState> LoadStateAsync();
-        protected abstract Task SaveStateAsync();
-
         protected virtual string GetPrettyName() => $"{GetSagaName()}:{this.GetPrimaryKeyString()}";
         protected virtual string GetSagaName() => GetType().Name.Replace("Saga", "");
 
@@ -113,7 +110,7 @@ namespace Platformex.Domain
                 throw;
             }
 
-            await State.SaveState();
+            await State.SaveState(this.GetPrimaryKeyString());
             await State.CommitTransaction();
 
             _isStarted = true;
@@ -256,7 +253,7 @@ namespace Platformex.Domain
         }
     }
 
-    public class EmptySagaState : ISagaState
+    /*public class EmptySagaState : ISagaState
     {
         public string Id => String.Empty;
 
@@ -276,5 +273,5 @@ namespace Platformex.Domain
     {
         protected override  Task<EmptySagaState> LoadStateAsync() => Task.FromResult(new EmptySagaState());
         protected override Task SaveStateAsync() => Task.CompletedTask;
-    }
+    }*/
 }

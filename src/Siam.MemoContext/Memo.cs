@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Threading.Tasks;
+using FluentValidation;
 using Platformex;
 
 namespace Siam.MemoContext
@@ -22,8 +23,21 @@ namespace Siam.MemoContext
     /// <param name="Id">Идентификатор Памятки</param>
     /// <param name="Document">Документ</param>
     [Description("Обновить памятку")]
+    [Rules(typeof(UpdateMemoRules))]
     public record UpdateMemo(MemoId Id, MemoDocument Document): Command, ICommand<MemoId>;
-    
+
+    public class UpdateMemoRules : Rules<UpdateMemo>
+    {
+        public UpdateMemoRules()
+        {
+            RuleFor(c => c.Document).NotNull()
+                .WithMessage("Документ не может быть пустым");
+
+            RuleFor(c => c.Document.Number).NotNull()
+                .WithMessage("Не определен номер документа");
+        }
+    }
+
     /// <summary>
     /// Подписать памятку
     /// </summary>

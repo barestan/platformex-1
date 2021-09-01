@@ -1,5 +1,4 @@
 ﻿using System;
-using Platformex.Domain;
 
 namespace Platformex.Tests.TestHelpers
 {

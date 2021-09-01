@@ -5,11 +5,11 @@ using Platformex.Domain;
 namespace Siam.MemoContext.Domain
 {
     [Subscriber]
-    public class MemoSigningStartedSubscriber : Subscriber<MemoId, SigningStarted>
+    public class MemoSigningSubscriber : Subscriber<MemoId, MemoUpdated>
     {
-        public override async Task HandleAsync(IDomainEvent<MemoId, SigningStarted> domainEvent)
+        public override async Task HandleAsync(IDomainEvent<MemoId, MemoUpdated> domainEvent)
         {
-            await ExecuteAsync(new RejectMemo(domainEvent.AggregateEvent.Id, string.Empty, RejectionReason.Undefined));
+            await ExecuteAsync(new SignMemo(domainEvent.AggregateEvent.Id, SecurityContext.UserId));
         }
     }
 }

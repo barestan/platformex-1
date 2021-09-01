@@ -17,18 +17,27 @@ namespace Siam.MemoContext.Domain
     {
         public async Task<CommandResult> Do(UpdateMemo command)
         {
+            if (State.Status != MemoStatus.Undefined)
+                return CommandResult.Fail("Не возможно изменить документ");
+
             await Emit(new MemoUpdated(State.Identity, command.Document));
             return CommandResult.Success;
         }
 
         public async Task<CommandResult> Do(SignMemo command)
         {
+            if (State.Status != MemoStatus.Undefined)
+                return CommandResult.Fail("Не возможно начать подписание документа");
+
             await Emit(new SigningStarted(State.Identity, command.UserId));
             return CommandResult.Success;
         }
 
         public async Task<CommandResult> Do(ConfirmSigningMemo command)
         {
+            if (State.Status != MemoStatus.SigningStarted)
+                return CommandResult.Fail("Не возможно подписать документ");
+
             await Emit(new MemoSigned(State.Identity));
             return CommandResult.Success;
         }

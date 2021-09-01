@@ -6,23 +6,39 @@ using Siam.MemoContext;
 
 namespace Siam.Application
 {
-    [Subscriber]
-    public class AutoRejectMemoSaga : StatelessSaga<AutoRejectMemoSaga>,
-        IStartedBy<MemoId,RejectionStarted>,
-        ISubscribeTo<MemoId,MemoRejected>
+    public class AutoConfirmSagaState : ISagaState
     {
+        public string UserId { get; set; }
 
-        public string Test;
-        public async Task<string> HandleAsync(IDomainEvent<MemoId, RejectionStarted> domainEvent)
+        public Task<bool> LoadState(string id) => Task.FromResult(true);
+
+        public Task SaveState(string id) => Task.CompletedTask;
+
+        public Task BeginTransaction() => Task.CompletedTask;
+
+        public Task CommitTransaction() => Task.CompletedTask;
+
+        public Task RollbackTransaction() => Task.CompletedTask;
+    }
+
+    [Subscriber]
+    public class AutoConfimMemoSaga : Saga<AutoConfirmSagaState,AutoConfimMemoSaga>,
+        IStartedBy<MemoId,SigningStarted>,
+        ISubscribeTo<MemoId,MemoSigned>
+    {
+        public async Task<string> HandleAsync(IDomainEvent<MemoId, SigningStarted> domainEvent)
         {
-            await ExecuteAsync(new ConfirmRejectionMemo(domainEvent.AggregateIdentity));
-            Test = "100";
+
+            //Сохраняем информацию в состоянии саги
+            State.UserId = domainEvent.AggregateEvent.UserId;
+            await ExecuteAsync(new ConfirmSigningMemo(domainEvent.AggregateIdentity));
             return domainEvent.AggregateEvent.Id.Value;
         }
 
-        public Task HandleAsync(IDomainEvent<MemoId, MemoRejected> domainEvent)
+        public Task HandleAsync(IDomainEvent<MemoId, MemoSigned> domainEvent)
         {
-            Logger.LogInformation("ОК!");
+            //Можем получить доступ к ранее сохраненной информации в состоянии
+            Logger.LogInformation($"Пользователь {State.UserId} успешно завершил подписание документа");
             return Task.CompletedTask;
         }
     }

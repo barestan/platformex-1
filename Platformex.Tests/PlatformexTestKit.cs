@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using Orleans.TestKit;
-using Platformex.Domain;
 using Platformex.Infrastructure;
 
 namespace Platformex.Tests
@@ -19,9 +18,7 @@ namespace Platformex.Tests
             Platform = new TestPlatform();
             Builder = new PlatformBuilder(Platform); 
             Silo.AddService<IPlatform>(Platform);
-            
-            Silo.AddService(new EmptySagaState());
-
+           
         }
     }
 }

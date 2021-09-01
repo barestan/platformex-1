@@ -15,11 +15,12 @@ namespace Platformex.Domain
     {
         protected bool IsSync { get; }
 
+        public abstract Task HandleAsync(IDomainEvent<TIdentity, TEvent> domainEvent);
+
         protected Subscriber(bool isSync = false)
         {
             IsSync = isSync;
         }
-        public abstract Task HandleAsync(IDomainEvent<TIdentity, TEvent> domainEvent);
 
         private ILogger _logger;
         protected ILogger Logger => GetLogger();
@@ -28,6 +29,7 @@ namespace Platformex.Domain
 
         protected virtual string GetPrettyName() => $"{GetSubscriberName()}:{this.GetPrimaryKeyString()}";
         protected virtual string GetSubscriberName() => GetType().Name.Replace("Job", "");
+        protected SecurityContext SecurityContext { get; private set; }
 
         public override async Task OnActivateAsync()
         {
@@ -47,10 +49,23 @@ namespace Platformex.Domain
             {
                 Logger.LogInformation($"(Subscriber [{GetSubscriberName()}] received event {data.GetPrettyName()}.");
             
+                var sc = new SecurityContext(data.Metadata);
+                //Проверим права
+                var requiredUser = SecurityContext.IsUserRequiredFrom(data);
+                if (requiredUser && !sc.IsAuthorized)
+                    throw new UnauthorizedAccessException();
+            
+                var requiredRole = SecurityContext.GetRolesFrom(data);
+                if (requiredRole != null)
+                    sc.HasRoles(requiredRole);
+
+                SecurityContext = sc;
+
                 //Вызываем сагу для обработки события
                 if (IsSync)
                 {
                     Logger.LogInformation($"(Subscriber [{GetSubscriberName()}] handling event sync {data.GetPrettyName()}...");
+                    
                     try
                     {
                         await HandleAsync((IDomainEvent<TIdentity, TEvent>) data).ConfigureAwait(false);

@@ -9,7 +9,14 @@ namespace Siam.MemoContext.Domain
     {
         public override async Task ExecuteAsync()
         {
-            await ExecuteAsync(new SignMemo(MemoId.New, String.Empty));
+            var rnd = new Random();
+            await ExecuteAsync(new UpdateMemo(MemoId.New, 
+                new MemoDocument(
+                    Guid.NewGuid().ToString(),
+                    new DocumentNumber(rnd.Next(1000).ToString()),
+                    new Address("127000", "Россия", "Москва",
+                        "проспект Мира",rnd.Next(1000).ToString()
+                    ))));
         }
 
         protected override async Task Initialize()

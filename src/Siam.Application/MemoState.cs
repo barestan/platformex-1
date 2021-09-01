@@ -13,7 +13,7 @@ namespace Siam.Application
         public MemoStatus Status { get; set; }
         public ICollection<MemoStatusHistory> History { get; } = new List<MemoStatusHistory>();
     }
-    
+
     public class MemoState :  AggregateStateEx<MemoId, MemoState, MemoModel>, IMemoState,
     ICanApply<MemoUpdated, MemoId>,
     ICanApply<SigningStarted, MemoId>,
