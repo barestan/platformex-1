@@ -23,12 +23,12 @@ namespace Platformex.Web.Swagger
 
         public override object[] GetCustomAttributes(bool inherit)
         {
-            return new object[0];
+            return _parameterType.GetCustomAttributes(inherit);
         }
 
         public override object[] GetCustomAttributes(Type attributeType, bool inherit)
         {
-            return new object[0];
+            return _parameterType.GetCustomAttributes(attributeType, inherit);
         }
 
         public override bool IsDefined(Type attributeType, bool inherit)

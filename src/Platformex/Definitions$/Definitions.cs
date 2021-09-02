@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 #region hack
 namespace System.Runtime.CompilerServices
@@ -18,6 +19,13 @@ namespace Platformex
     public record AggregateDefinition(Type IdentityType, Type AggregateType, Type InterfaceType, Type StateType);
     public record CommandDefinition(string Name, Type IdentityType, Type CommandType, bool IsPublic);
     public record QueryDefinition(string Name,Type QueryType, Type ResultType, bool IsPublic);
+    public record ServiceDefinition(string Name,Type ServiceType, bool IsPublic)
+    {
+        public IEnumerable<(string name, ParameterInfo[] parameters)> GetMethods() =>
+            ServiceType.GetMethods()
+                .Where(i=>i.ReturnParameter?.ParameterType == typeof(Task<Result>))
+                .Select(method => (method.Name, method.GetParameters()));
+    }
 
     public sealed class Definitions
     {
@@ -25,6 +33,7 @@ namespace Platformex
         
         public readonly Dictionary<string, CommandDefinition> Commands = new();
         public readonly Dictionary<string, QueryDefinition> Queries = new();
+        public readonly Dictionary<string, ServiceDefinition> Services = new();
         public AggregateDefinition Aggregate<TIdentity>() where TIdentity : Identity<TIdentity> 
             => Aggregates[typeof(TIdentity)];
         private readonly List<Assembly> _applicationPartsAssemblies = new();
@@ -40,6 +49,10 @@ namespace Platformex
         public void Register(QueryDefinition definition)
         {
             Queries.Add(definition.Name, definition);
+        }
+        public void Register(ServiceDefinition definition)
+        {
+            Services.Add(definition.Name, definition);
         }
         public IEnumerable<Assembly> Assemblies =>
             Aggregates.Values.SelectMany(i => new []
@@ -80,6 +93,18 @@ namespace Platformex
             }
 
             queryDefinition = null;
+            return false;
+        }
+
+        public bool TryGetDefinition(string name, out ServiceDefinition serviceDefinition)
+        {
+            if (Services.ContainsKey(name))
+            {
+                serviceDefinition = Services[name];
+                return true;
+            }
+
+            serviceDefinition = null;
             return false;
         }
     }

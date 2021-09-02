@@ -6,7 +6,7 @@ using Orleans;
 
 namespace Platformex.Domain
 {
-    public abstract class DomainService : Grain, IDomainService, IIncomingGrainCallFilter
+    public abstract class DomainService : Grain, IIncomingGrainCallFilter
     {
         private ILogger _logger;
         protected ServiceMetadata Metadata { get; private set; } = new ServiceMetadata();

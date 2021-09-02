@@ -26,6 +26,7 @@ namespace Platformex.Infrastructure
             var asm = typeof(T).Assembly;
             _platform.Definitions.RegisterApplicationParts(asm);
             WithQueries(asm);
+            WithServices(asm);
             return this;
         }
 
@@ -53,6 +54,18 @@ namespace Platformex.Infrastructure
             }
         }
 
+        private void WithServices(Assembly assembly)
+        {
+            //TODO: Рефакторнг
+            foreach (var type in assembly.GetTypes())
+            {
+                if (type.GetInterfaces().Contains(typeof(IDomainService)))
+                {
+                    RegisterService(type);
+                }
+            }
+        }
+
         public void RegisterCommand(Type tIdentity, Type tCommand)
         {
             _platform.Definitions.Register(new CommandDefinition(
@@ -69,6 +82,16 @@ namespace Platformex.Infrastructure
         {
             RegisterCommand(typeof(TIdentity), typeof(TCommand));
         }
+
+        public void RegisterService(Type tService)
+        {
+            _platform.Definitions.Register(new ServiceDefinition(
+                tService.Name.Replace("Service",""), 
+                tService,
+                tService.GetCustomAttribute<PublicAttribute>() != null
+            ));
+        }
+
         public void RegisterQuery(Type tQuery, Type tResult)
         {
             _platform.Definitions.Register(new QueryDefinition(
@@ -96,6 +119,9 @@ namespace Platformex.Infrastructure
                 aggregateInterfaceType, typeof(TState));
 
             _platform.Definitions.Register(info);
+
+            WithServices(typeof(TAggregate).Assembly);
+            WithQueries(typeof(TAggregate).Assembly);
             return new AggregateBuilder(this, info);
         }
 
@@ -135,6 +161,5 @@ namespace Platformex.Infrastructure
                 }
             }
         }
-        
     }
 }

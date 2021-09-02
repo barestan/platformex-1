@@ -112,7 +112,16 @@ namespace Platformex.Web.Swagger
                 bool isQuery = actionType.GetInterfaces().Any(x =>
                     x.IsGenericType &&
                     x.GetGenericTypeDefinition() == typeof(ICommand<>));
-                
+
+                var serviceInterface = actionType.GetInterfaces().Any(x =>
+                    x.IsGenericType &&
+                    x.GetGenericTypeDefinition() == typeof(ICommand<>));
+
+                if (typeof(IDomainService).IsAssignableFrom(actionType))
+                {
+                    operation.Summary = desc.MethodInfo.GetCustomAttribute<DescriptionAttribute>()?.Description;
+                }
+
                 if (isCommand || isQuery)
                 {
                     operation.Summary = actionType.GetCustomAttribute<DescriptionAttribute>()?.Description;
