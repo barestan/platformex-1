@@ -102,30 +102,25 @@ namespace Platformex.Web.Swagger
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            if (context.ApiDescription.ActionDescriptor is ControllerActionDescriptor desc)
-            {
-                var actionType = desc.ControllerTypeInfo.AsType();
-                bool isCommand = actionType.GetInterfaces().Any(x =>
-                    x.IsGenericType &&
-                    x.GetGenericTypeDefinition() == typeof(ICommand<>));
+            if (context.ApiDescription.ActionDescriptor is not ControllerActionDescriptor desc) return;
+
+            var actionType = desc.ControllerTypeInfo.AsType();
+            var isCommand = actionType.GetInterfaces().Any(x =>
+                x.IsGenericType &&
+                x.GetGenericTypeDefinition() == typeof(ICommand<>));
                 
-                bool isQuery = actionType.GetInterfaces().Any(x =>
-                    x.IsGenericType &&
-                    x.GetGenericTypeDefinition() == typeof(ICommand<>));
+            var isQuery = actionType.GetInterfaces().Any(x =>
+                x.IsGenericType &&
+                x.GetGenericTypeDefinition() == typeof(ICommand<>));
 
-                var serviceInterface = actionType.GetInterfaces().Any(x =>
-                    x.IsGenericType &&
-                    x.GetGenericTypeDefinition() == typeof(ICommand<>));
+            if (typeof(IDomainService).IsAssignableFrom(actionType))
+            {
+                operation.Summary = desc.MethodInfo.GetCustomAttribute<DescriptionAttribute>()?.Description;
+            }
 
-                if (typeof(IDomainService).IsAssignableFrom(actionType))
-                {
-                    operation.Summary = desc.MethodInfo.GetCustomAttribute<DescriptionAttribute>()?.Description;
-                }
-
-                if (isCommand || isQuery)
-                {
-                    operation.Summary = actionType.GetCustomAttribute<DescriptionAttribute>()?.Description;
-                }
+            if (isCommand || isQuery)
+            {
+                operation.Summary = actionType.GetCustomAttribute<DescriptionAttribute>()?.Description;
             }
         }
     }
