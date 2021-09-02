@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Platformex.Application;
 
@@ -11,6 +12,7 @@ namespace Platformex.Infrastructure
     {
         private readonly IPlatform _platform;
         internal List<Action<IServiceCollection>> ConfigureServicesActions = new List<Action<IServiceCollection>>();
+        internal List<Func<IServiceProvider, Task>> ConfigureStartupActions = new List<Func<IServiceProvider, Task>>();
 
         public PlatformBuilder(IPlatform platform)
         {
@@ -30,6 +32,11 @@ namespace Platformex.Infrastructure
         public void AddConfigureServicesActions(Action<IServiceCollection> action)
         {
             ConfigureServicesActions.Add(action);
+        }
+
+        public void AddStartupActions(Func<IServiceProvider, Task> action)
+        {
+            ConfigureStartupActions.Add(action);
         }
         private void WithQueries(Assembly assembly)
         {

@@ -66,7 +66,7 @@ namespace Platformex.Infrastructure
                         var result = rules.Validate(argument);
                         if (!result.IsValid)
                         {
-                            context.Result = new CommandResult(result);
+                            context.Result = new Result(result);
                             return;
                         }
                     }
@@ -114,6 +114,14 @@ namespace Platformex.Infrastructure
                 });
             });
 
+            builder.AddStartupTask(async (provider, _) =>
+            {
+                foreach (var action in platformBuilder.ConfigureStartupActions)
+                {
+                    await action(provider);
+                }
+            });
+
             builder
                 .AddStartupTask((provider, _) => Initializer.InitAsync(provider))
                 .ConfigureApplicationParts(manager =>
@@ -132,7 +140,7 @@ namespace Platformex.Infrastructure
                         var result = rules.Validate(argument);
                         if (!result.IsValid)
                         {
-                            context.Result = new CommandResult(result);
+                            context.Result = new Result(result);
                             return;
                         }
                     }

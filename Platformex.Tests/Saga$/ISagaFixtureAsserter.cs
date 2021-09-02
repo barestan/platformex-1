@@ -7,7 +7,7 @@ namespace Platformex.Tests
         where TSaga :Saga<TSagaState, TSaga> where TSagaState : ISagaState
     {
         ISagaFixtureAsserter<TSaga, TSagaState> AndWhen<TIdentity,TAggregateEvent>(TAggregateEvent @event,
-            CommandResult[] commandResults = null, EventMetadata metadata = null)
+            Result[] commandResults = null, EventMetadata metadata = null)
             where TAggregateEvent : IAggregateEvent<TIdentity> where TIdentity : Identity<TIdentity>;
 
         ISagaFixtureAsserter<TSaga, TSagaState> ThenExpect<TIdentity, TCommand>(Predicate<TCommand> commandPredicate = null)

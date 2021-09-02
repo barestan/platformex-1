@@ -17,7 +17,7 @@ namespace Platformex.Domain
         where TIdentity : Identity<TIdentity>
         where TState : IAggregateState<TIdentity>
     {
-        private static readonly IReadOnlyDictionary<Type, Func<TEventApplier, ICommand, Task<CommandResult>>> DoCommands;
+        private static readonly IReadOnlyDictionary<Type, Func<TEventApplier, ICommand, Task<Result>>> DoCommands;
         private ICommand _pinnedCommand;
 
         protected SecurityContext SecurityContext { get; private set; }
@@ -25,7 +25,7 @@ namespace Platformex.Domain
         {
             DoCommands = typeof(TEventApplier).GetAggregateDoMethods<TIdentity, TEventApplier>();
         }
-        public async Task<CommandResult> DoAsync(ICommand command)
+        public async Task<Result> DoAsync(ICommand command)
         {
             if (!DoCommands.TryGetValue(command.GetType(), out var applier))
             {
@@ -34,7 +34,7 @@ namespace Platformex.Domain
 
             await BeforeApplyingCommand(command);
 
-            CommandResult result;
+            Result result;
 
             try
             {
@@ -44,7 +44,7 @@ namespace Platformex.Domain
             {
                 _logger.LogError(e.Message, e);
                 await RollbackApplyingCommand();
-                result = CommandResult.Fail(e.Message);
+                result = Result.Fail(e.Message);
                 return result;
             }
             
@@ -221,7 +221,7 @@ namespace Platformex.Domain
                 {
                     _logger.LogError(e.Message, e);
                     await RollbackApplyingCommand();
-                    context.Result = CommandResult.Fail(e.Message);
+                    context.Result = Result.Fail(e.Message);
                     return;
                 }
                 

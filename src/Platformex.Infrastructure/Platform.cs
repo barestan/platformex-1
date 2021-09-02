@@ -74,7 +74,7 @@ namespace Platformex.Infrastructure
             return await queryGarin.QueryAsync(query);
         }
 
-        public async Task<CommandResult> ExecuteAsync(string aggregateId, ICommand command)
+        public async Task<Result> ExecuteAsync(string aggregateId, ICommand command)
         {
 
             var type = command.GetType();
@@ -109,5 +109,8 @@ namespace Platformex.Infrastructure
                     StreamHelper.EventStreamName(domainEvent.EventType, true))
                 .OnNextAsync(domainEvent).ConfigureAwait(false);        
         }
+
+        public TDomainService Service<TDomainService>() where TDomainService : IDomainService 
+            => _client.GetGrain<TDomainService>(Guid.NewGuid());
     }
 }

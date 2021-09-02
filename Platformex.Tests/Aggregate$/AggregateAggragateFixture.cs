@@ -17,7 +17,7 @@ namespace Platformex.Tests
         private TAggregate _aggregate;
         private TState State => _aggregate.TestOnlyGetState(); 
         public TIdentity AggregateId => _aggregate?.GetId<TIdentity>();
-        private readonly Stack<(Type,CommandResult)> _commandResults = new Stack<(Type,CommandResult)>();
+        private readonly Stack<(Type,Result)> _commandResults = new Stack<(Type,Result)>();
         private readonly Stack<IDomainEvent> _events = new Stack<IDomainEvent>();
         
         private bool _isMonitoring;
@@ -104,7 +104,7 @@ namespace Platformex.Tests
             return this;
         }
 
-        public IAggregateFixtureAsserter<TAggregate, TIdentity, TState> ThenExpectResult(Predicate<CommandResult> aggregateReply = null)
+        public IAggregateFixtureAsserter<TAggregate, TIdentity, TState> ThenExpectResult(Predicate<Result> aggregateReply = null)
         {
             if (_commandResults.Count == 0)
                 Assert.True(false, $"Нет ожидаемого результат команды.");

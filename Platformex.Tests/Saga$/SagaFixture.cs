@@ -63,7 +63,7 @@ namespace Platformex.Tests
         }
 
         public ISagaFixtureAsserter<TSaga, TSagaState> When<TIdentity,TAggregateEvent>(TAggregateEvent @event, 
-            CommandResult[] commandResults = null, EventMetadata metadata = null)
+            Result[] commandResults = null, EventMetadata metadata = null)
             where TIdentity : Identity<TIdentity> where TAggregateEvent : IAggregateEvent<TIdentity> 
         {
             StartMonitoring();
@@ -79,7 +79,7 @@ namespace Platformex.Tests
         }
 
         public ISagaFixtureAsserter<TSaga, TSagaState> AndWhen<TIdentity, TAggregateEvent>(TAggregateEvent @event,
-            CommandResult[] commandResults = null,
+            Result[] commandResults = null,
             EventMetadata metadata = null) where TAggregateEvent : IAggregateEvent<TIdentity>
             where TIdentity : Identity<TIdentity>
             => When<TIdentity, TAggregateEvent>(@event, commandResults, metadata);

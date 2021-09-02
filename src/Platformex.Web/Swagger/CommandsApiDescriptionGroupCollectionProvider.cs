@@ -172,7 +172,7 @@ namespace Platformex.Web.Swagger
                     apiDescription1.SupportedResponseTypes.Add(new ApiResponseType
                     {
                         StatusCode = 200,
-                        Type = typeof(CommandResult),
+                        Type = typeof(Result),
                         ApiResponseFormats = new List<ApiResponseFormat>
                         {
                             new ApiResponseFormat
@@ -180,7 +180,7 @@ namespace Platformex.Web.Swagger
                                 MediaType = "application/json"
                             }
                         },
-                        ModelMetadata = _metadataProvider.GetMetadataForType(typeof(CommandResult))
+                        ModelMetadata = _metadataProvider.GetMetadataForType(typeof(Result))
                     });
                     var apiDescription3 = apiDescription1;
                     ((List<ApiParameterDescription>)apiDescription3.ParameterDescriptions).Add(new ApiParameterDescription

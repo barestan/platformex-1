@@ -4,34 +4,34 @@ using FluentValidation.Results;
 
 namespace Platformex
 {
-    public class CommandResult
+    public class Result
     {
         public bool IsSuccess { get; }
         public string Error { get; }
         // ReSharper disable once UnusedAutoPropertyAccessor.Local
         private ValidationResult ValidationResult { get; }
 
-        public CommandResult(bool isSuccess, string error)
+        public Result(bool isSuccess, string error)
         {
             IsSuccess = isSuccess;
             Error = error;
         }
 
-        public CommandResult(ValidationResult result)
+        public Result(ValidationResult result)
         {
             IsSuccess = result.IsValid;
             ValidationResult = result;
             Error = result.ToString();
         }
 
-        public static CommandResult Success => new CommandResult(true, null);
-        public static async Task<CommandResult> SucceedAsync(Func<Task> func)
+        public static Result Success => new Result(true, null);
+        public static async Task<Result> SucceedAsync(Func<Task> func)
         {
             await func();
-            return new CommandResult(true, null);
+            return new Result(true, null);
         }
 
-        public static CommandResult Fail(string message) => new CommandResult(false, message);
+        public static Result Fail(string message) => new Result(false, message);
     }
 
 }

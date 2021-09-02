@@ -17,7 +17,7 @@ namespace Platformex.Tests
             Predicate<TState> aggregateEventPredicate = null);
             
 
-        IAggregateFixtureAsserter<TAggregate, TIdentity, TState> ThenExpectResult(Predicate<CommandResult> aggregateReply = null);
+        IAggregateFixtureAsserter<TAggregate, TIdentity, TState> ThenExpectResult(Predicate<Result> aggregateReply = null);
 
         IAggregateFixtureAsserter<TAggregate, TIdentity, TState> ThenExpectDomainEvent<TAggregateEvent>(Predicate<IDomainEvent<TIdentity, TAggregateEvent>> domainEventPredicate = null)
             where TAggregateEvent : IAggregateEvent<TIdentity>;

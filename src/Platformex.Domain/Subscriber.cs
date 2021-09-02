@@ -99,7 +99,7 @@ namespace Platformex.Domain
 
             Logger.LogInformation($"(Subscriber [{GetSubscriberName()}] activated.");
         }
-        protected Task<CommandResult> ExecuteAsync<T>(ICommand<T> command) 
+        protected Task<Result> ExecuteAsync<T>(ICommand<T> command) 
             where T : Identity<T>
         {
             var platform = ServiceProvider.GetService<IPlatform>();

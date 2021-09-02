@@ -52,7 +52,7 @@ namespace Platformex.Domain
             Logger.LogInformation($"(Job [{GetJobName()}] unregistered.");
         }
 
-        protected Task<CommandResult> ExecuteAsync<TIdentity>(ICommand<TIdentity> command) 
+        protected Task<Result> ExecuteAsync<TIdentity>(ICommand<TIdentity> command) 
             where TIdentity : Identity<TIdentity>
         {
             var platform = ServiceProvider.GetService<IPlatform>();
@@ -81,6 +81,5 @@ namespace Platformex.Domain
 
             return base.OnDeactivateAsync();
         }
-
     }
 }

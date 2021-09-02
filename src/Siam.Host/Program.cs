@@ -51,17 +51,17 @@ namespace Siam.Host
                 .AddSimpleMessageStreamProvider("EventBusProvider")
                 .AddMemoryGrainStorage("PubSubStore")
 
-                //Конфигурация Reminders (для запуска регулярных задач)
+                //Конфигурация Reminders (для запуска регулярных задач) 
                 .UseInMemoryReminderService()
 
-                //Конфигурация журналирования
+                //Конфигурация журналирования 
                 .ConfigureLogging(logging =>
                 {
                     logging.AddConsole();
                     logging.SetMinimumLevel(LogLevel.Information);
                 })
 
-                //Конфигурация приложения
+                //Конфигурация узла
                 .ConfigurePlatformex(p =>
                 {
                     p.RegisterAggregate<MemoId, MemoAggregate, MemoState>()
@@ -69,7 +69,7 @@ namespace Siam.Host
                     p.RegisterApplicationParts<MemoListQuery>();
                     p.RegisterApplicationParts<MemoFromIdQueryHandler>();
 
-                    //Конфигурация сервисов приложения (инфраструктуры)
+                    //Конфигурация сервисов узла (инфраструктуры)
                     p.ConfigureServices((services, configuration) =>
                     {
                         services.AddDbContext<MemoDbContext>(options 
@@ -79,15 +79,23 @@ namespace Siam.Host
                         services.AddScoped<IDbProvider<MemoModel>, MemoDbProvider>();
                     });
 
-                    //Конфигурация WebAPI
+                    //Действия, которые буду выполнены при запуске узла
+                    p.StartupAction(async platform =>
+                    {
+                        await platform.Service<IMemoService>().CreateMemos(10);
+                    });
+
+                    //Конфигурация WebAPI узла
                     p.ConfigureWebApi()
                         .WithOpenApi(options => options.Url = "swagger");
 
-                    //Конфигурация GraphQL
+                    //Конфигурация GraphQL узла
                     p.ConfigureGraphQl(options => options.BasePath = "graphql")
                         .WithConsole(options => options.BasePath = "graphql-console");
 
                 });
+
+                
 
             });
         

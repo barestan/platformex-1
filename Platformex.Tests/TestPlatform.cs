@@ -11,12 +11,12 @@ namespace Platformex.Tests
         public event EventHandler<EventPublishedArgs> EventPublished;
         public event EventHandler<CommandExecutedArgs> CommandExecuted;
 
-        public Task<CommandResult> ExecuteAsync(string aggregateId, ICommand command)
+        public Task<Result> ExecuteAsync(string aggregateId, ICommand command)
         {
             if (CommandExecuted != null) 
                 CommandExecuted(this, new CommandExecutedArgs(command));
             
-            return Task.FromResult(_results.TryPop(out var result) ? result : CommandResult.Success);
+            return Task.FromResult(_results.TryPop(out var result) ? result : Result.Success);
         }
 
         public Task PublishEvent(IDomainEvent domainEvent)
@@ -26,6 +26,11 @@ namespace Platformex.Tests
                 EventPublished(this, new EventPublishedArgs(domainEvent));
             
             return Task.CompletedTask;
+        }
+
+        public TDomainService Service<TDomainService>() where TDomainService : IDomainService
+        {
+            throw new NotImplementedException();
         }
 
         public TAggregate GetAggregate<TAggregate>(string id) where TAggregate : IAggregate
@@ -43,8 +48,8 @@ namespace Platformex.Tests
             throw new NotImplementedException();
         }
 
-        private readonly Stack<CommandResult> _results = new Stack<CommandResult>();
-        public void SetCommandResults(CommandResult[] results)
+        private readonly Stack<Result> _results = new Stack<Result>();
+        public void SetCommandResults(Result[] results)
         {
             foreach (var result in results) _results.Push(result);
         }

@@ -54,7 +54,7 @@ namespace Platformex.Domain
         private IDisposable _timer;
         protected IDomainEvent PinnedEvent;
 
-        protected Task<CommandResult> ExecuteAsync<TIdentity>(ICommand<TIdentity> command) 
+        protected Task<Result> ExecuteAsync<TIdentity>(ICommand<TIdentity> command) 
             where TIdentity : Identity<TIdentity>
         {
             var commandMetadata = (CommandMetadata) command.Metadata;

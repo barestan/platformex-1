@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Platformex.Infrastructure;
@@ -38,6 +39,16 @@ namespace Platformex.Web
             });
 
 
+            return builder;
+        }
+
+        public static PlatformBuilder StartupAction(this PlatformBuilder builder, Func<IPlatform, Task> func)
+        {
+            builder.AddStartupActions(async provider =>
+            {
+                var platform = provider.GetService<IPlatform>();
+                await func(platform);
+            });
             return builder;
         }
 

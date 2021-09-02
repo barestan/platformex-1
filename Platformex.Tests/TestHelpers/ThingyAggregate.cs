@@ -67,19 +67,19 @@ namespace Platformex.Tests.TestHelpers
 
     public class ThingyAggregate : Aggregate<ThingyId, IThingyState,ThingyAggregate>, IThingyAggregate
     {
-        public Task<CommandResult> Do(ThingyAddMessageCommand command) 
-            => CommandResult.SucceedAsync(() => Emit(new ThingyMessageAddedEvent(command.Id, command.ThingyMessage)));
+        public Task<Result> Do(ThingyAddMessageCommand command) 
+            => Result.SucceedAsync(() => Emit(new ThingyMessageAddedEvent(command.Id, command.ThingyMessage)));
 
-        public Task<CommandResult> Do(ThingyAddMessageHistoryCommand command)
-            => CommandResult.SucceedAsync(() => Emit(new ThingyMessageHistoryAddedEvent(command.Id, command.ThingyMessages)));
+        public Task<Result> Do(ThingyAddMessageHistoryCommand command)
+            => Result.SucceedAsync(() => Emit(new ThingyMessageHistoryAddedEvent(command.Id, command.ThingyMessages)));
 
-        public Task<CommandResult> Do(ThingyDeleteCommand command)
-            => CommandResult.SucceedAsync(() => Emit(new ThingyDeletedEvent(command.Id)));
+        public Task<Result> Do(ThingyDeleteCommand command)
+            => Result.SucceedAsync(() => Emit(new ThingyDeletedEvent(command.Id)));
 
-        public Task<CommandResult> Do(ThingyDomainErrorAfterFirstCommand command)
-            => CommandResult.SucceedAsync(() => Emit(new ThingyDomainErrorAfterFirstEvent(command.Id)));
+        public Task<Result> Do(ThingyDomainErrorAfterFirstCommand command)
+            => Result.SucceedAsync(() => Emit(new ThingyDomainErrorAfterFirstEvent(command.Id)));
 
-        public async Task<CommandResult> Do(ThingyImportCommand command)
+        public async Task<Result> Do(ThingyImportCommand command)
         {
             foreach (var pingId in command.PingIds)
             {
@@ -91,39 +91,39 @@ namespace Platformex.Tests.TestHelpers
                 await Emit(new ThingyMessageAddedEvent(command.Id, thingyMessage));
             }
 
-            return CommandResult.Success;
+            return Result.Success;
         }
 
-        public async Task<CommandResult> Do(ThingyMaybePingCommand command)
+        public async Task<Result> Do(ThingyMaybePingCommand command)
         {
             await Emit(new ThingyPingEvent(command.Id, command.PingId));
             return command.IsSuccess
-                ? CommandResult.Success
-                : CommandResult.Fail("Error");
+                ? Result.Success
+                : Result.Fail("Error");
         }
 
-        public async Task<CommandResult> Do(ThingyMultiplePingsCommand command)
+        public async Task<Result> Do(ThingyMultiplePingsCommand command)
         {
             foreach (var pingId in command.PingIds)
             {
                 await Emit(new ThingyPingEvent(command.Id, pingId));
             }
-            return CommandResult.Success;
+            return Result.Success;
         }
 
-        public Task<CommandResult> Do(ThingyNopCommand command)
-            => Task.FromResult(CommandResult.Success);
+        public Task<Result> Do(ThingyNopCommand command)
+            => Task.FromResult(Result.Success);
 
-        public Task<CommandResult> Do(ThingyPingCommand command)
-            => CommandResult.SucceedAsync(() => Emit(new ThingyPingEvent(command.Id, command.PingId)));
+        public Task<Result> Do(ThingyPingCommand command)
+            => Result.SucceedAsync(() => Emit(new ThingyPingEvent(command.Id, command.PingId)));
 
-        public Task<CommandResult> Do(ThingyRequestSagaCompleteCommand command)
-            => CommandResult.SucceedAsync(() => Emit(new ThingySagaCompleteRequestedEvent(command.Id)));
+        public Task<Result> Do(ThingyRequestSagaCompleteCommand command)
+            => Result.SucceedAsync(() => Emit(new ThingySagaCompleteRequestedEvent(command.Id)));
 
-        public Task<CommandResult> Do(ThingyRequestSagaStartCommand command)
-            => CommandResult.SucceedAsync(() => Emit(new ThingySagaStartRequestedEvent(command.Id)));
+        public Task<Result> Do(ThingyRequestSagaStartCommand command)
+            => Result.SucceedAsync(() => Emit(new ThingySagaStartRequestedEvent(command.Id)));
 
-        public Task<CommandResult> Do(ThingyThrowExceptionInSagaCommand command)
-            => CommandResult.SucceedAsync(() => Emit(new ThingySagaExceptionRequestedEvent(command.Id)));
+        public Task<Result> Do(ThingyThrowExceptionInSagaCommand command)
+            => Result.SucceedAsync(() => Emit(new ThingySagaExceptionRequestedEvent(command.Id)));
     }
 }
