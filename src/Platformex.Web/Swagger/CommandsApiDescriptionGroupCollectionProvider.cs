@@ -31,21 +31,23 @@ namespace Platformex.Web.Swagger
             _internal = new ApiDescriptionGroupCollectionProvider(actionDescriptorCollectionProvider, apiDescriptionProviders);
         }
 
+        private ApiDescriptionGroupCollection _apiDescriptionGroups;
         public ApiDescriptionGroupCollection ApiDescriptionGroups
         {
             get
             {
+                if (_apiDescriptionGroups != null) return _apiDescriptionGroups;
+
                 var descriptionGroups = _internal.ApiDescriptionGroups;
                 var apis = new List<ApiDescription>();
                 PrepareCommands(apis);
                 PrepareServices(apis,descriptionGroups);
-                return new ApiDescriptionGroupCollection(PrepareQueries(apis, descriptionGroups), 1);
+                _apiDescriptionGroups = new ApiDescriptionGroupCollection(PrepareQueries(apis, descriptionGroups), 1);
+                return _apiDescriptionGroups;
             }
         }
 
-        private List<ApiDescriptionGroup> PrepareQueries(
-          List<ApiDescription> apis,
-          ApiDescriptionGroupCollection data)
+        private List<ApiDescriptionGroup> PrepareQueries(List<ApiDescription> apis, ApiDescriptionGroupCollection data)
         {
             var contexts = _platform.Definitions.Queries.Select(i => (GetDomainName(i.Value), i.Value))
                 .GroupBy(i=>i.Item1).ToList();
@@ -54,71 +56,10 @@ namespace Platformex.Web.Swagger
             {
                 foreach (var query in domain.Select(i=>i.Value))
                 {
-                    var type = query.QueryType;
-                    var name = query.Name;
-                    var str = _options.BasePath.Trim('/') + "/" + query.Name;
-                    var genericInterface = ReflectionExtensions.GetSubclassOfRawGenericInterface(typeof(IQuery<>), type);
-                    if (!(genericInterface == null))
-                    {
-                        var genericArgument = genericInterface.GetGenericArguments()[0];
-                        var apiDescription1 = new ApiDescription();
-                        var apiDescription2 = apiDescription1;
-                        var actionDescriptor1 = new ControllerActionDescriptor
-                        {
-                            ActionConstraints =
-                                new List<IActionConstraintMetadata>
-                                {
-                                    new HttpMethodActionConstraint(new[] {"POST"})
-                                },
-                            ActionName = name,
-                            ControllerName = domain.Key,
-                            DisplayName = name,
-                            Parameters =
-                                new List<ParameterDescriptor>
-                                {
-                                    new() {Name = "query", ParameterType = type}
-                                },
-                            MethodInfo = new CustomMethodInfo(name, type),
-                            ControllerTypeInfo = type.GetTypeInfo(),
-                            RouteValues = new Dictionary<string, string> {{"controller", domain.Key}}
-                        };
-
-
-
-                        var actionDescriptor2 = actionDescriptor1;
-                        apiDescription2.ActionDescriptor = actionDescriptor2;
-                        apiDescription1.HttpMethod = "POST";
-                        apiDescription1.RelativePath = str;
-                        apiDescription1.SupportedRequestFormats.Add(new ApiRequestFormat
-                        {
-                            MediaType = "application/json"
-                        });
-                        apiDescription1.SupportedResponseTypes.Add(new ApiResponseType
-                        {
-                            StatusCode = 200,
-                            Type = genericArgument,
-                            ApiResponseFormats = new List<ApiResponseFormat>
-                            {
-                                new ApiResponseFormat
-                                {
-                                    MediaType = "application/json"
-                                }
-                            },
-                            ModelMetadata = _metadataProvider.GetMetadataForType(genericArgument),
-                        });
-                        var apiDescription3 = apiDescription1;
-
-                        ((List<ApiParameterDescription>)apiDescription3.ParameterDescriptions).Add(new ApiParameterDescription
-                        {
-                            Name = "query",
-                            Type = type,
-                            Source = BindingSource.Body,
-                            ModelMetadata = _metadataProvider.GetMetadataForType(type),
-                            IsRequired = true,
-                        });
-
-                        apis.Add(apiDescription3);
-                    }
+                    apis.Add(CreateApiDescription("Queries", query.QueryType,
+                        query.Name, query.QueryType,"POST", 
+                        query.QueryType.GetProperties().Select(p=>(p.Name, p.PropertyType)).ToList(),
+                        query.ResultType));
                 }
             }
             var descriptionGroupList = new List<ApiDescriptionGroup> { new ApiDescriptionGroup("Platformex", apis) };
@@ -126,9 +67,7 @@ namespace Platformex.Web.Swagger
             return descriptionGroupList;
         }
 
-        private void PrepareServices(
-          List<ApiDescription> apis,
-          ApiDescriptionGroupCollection data)
+        private void PrepareServices(List<ApiDescription> apis, ApiDescriptionGroupCollection data)
         {
             var contexts = _platform.Definitions.Services.Select(i => (GetDomainName(i.Value), i.Value))
                 .GroupBy(i=>i.Item1).ToList();
@@ -141,65 +80,12 @@ namespace Platformex.Web.Swagger
                     var serviceInterface = type.GetInterfaces()
                         .FirstOrDefault(i => typeof(IDomainService).IsAssignableFrom(i));
 
-                    //var name = service.Name;
-                    var contextName = GetDomainName(serviceInterface);
-                    var str = _options.BasePath.Trim('/') + "/" + contextName;
                     foreach (var methodInfo in service.GetMethods())
                     {
-                        var apiDescription = new ApiDescription();
-                        var actionDescriptor = new ControllerActionDescriptor
-                        {
-                            ActionConstraints =
-                                new List<IActionConstraintMetadata>
-                                {
-                                    new HttpMethodActionConstraint(new[] {"PUT"})
-                                },
-                            ActionName = methodInfo.name,
-                            ControllerName = contextName,
-                            DisplayName = methodInfo.name,
-                            Parameters = methodInfo.parameters
-                                .Select(p=> 
-                                    new ParameterDescriptor { Name = p.Name ?? "", ParameterType = p.ParameterType})
-                                .ToList(),
-                            MethodInfo = new CustomMethodInfo(methodInfo.name, serviceInterface),
-                            ControllerTypeInfo = type.GetTypeInfo(),
-                            RouteValues = new Dictionary<string, string> {{"controller", contextName}}
-                        };
-
-                        apiDescription.ActionDescriptor = actionDescriptor;
-                        apiDescription.HttpMethod = "PUT";
-                        apiDescription.RelativePath = str + "/" + methodInfo.name;
-                        apiDescription.SupportedRequestFormats.Add(new ApiRequestFormat
-                        {
-                            MediaType = "application/json"
-                        });
-                        apiDescription.SupportedResponseTypes.Add(new ApiResponseType
-                        {
-                            StatusCode = 200,
-                            Type = typeof(Result),
-                            ApiResponseFormats = new List<ApiResponseFormat>
-                            {
-                                new ApiResponseFormat
-                                {
-                                    MediaType = "application/json"
-                                }
-                            },
-                            ModelMetadata = _metadataProvider.GetMetadataForType(typeof(Result)),
-                        });
-
-                        foreach (var parameter in methodInfo.parameters)
-                        {
-                            ((List<ApiParameterDescription>) apiDescription.ParameterDescriptions).Add(
-                                new ApiParameterDescription
-                                {
-                                    Name = parameter.Name ?? "",
-                                    Type = parameter.ParameterType,
-                                    Source = BindingSource.Form,
-                                    ModelMetadata = _metadataProvider.GetMetadataForType(parameter.ParameterType),
-                                    IsRequired = true,
-                                });                     
-                        }
-                        apis.Add(apiDescription);
+                        apis.Add(CreateApiDescription(GetDomainName(serviceInterface), service.ServiceType,
+                            methodInfo.name, serviceInterface, "PUT", 
+                            methodInfo.parameters.Select(p=>(p.Name, p.ParameterType)).ToList(),
+                            typeof(Result)));
                     }
                 }
             }
@@ -207,6 +93,116 @@ namespace Platformex.Web.Swagger
             descriptionGroupList.AddRange(data.Items);
         }
 
+        private void PrepareCommands(List<ApiDescription> apis)
+        {
+            var contexts = _platform.Definitions.Commands.Select(i => (GetDomainName(i.Value), i.Value))
+                .GroupBy(i=>i.Item1).ToList();
+
+            foreach (var domain in contexts)
+            {
+                foreach (var allDefinition in domain.Select(i=>i.Value))
+                {
+                    apis.Add(CreateApiDescription(domain.Key, allDefinition.CommandType,
+                        allDefinition.Name, allDefinition.CommandType, "PUT", 
+                        allDefinition.CommandType.GetProperties()
+                            .Select(i=>(i.Name, i.PropertyType)).ToList(),
+                        typeof(Result)));
+                }
+            }
+        }
+
+        private ApiDescription CreateApiDescription(string controllerName, Type controllerType , string methodName, 
+            Type methodType, string method, ICollection<(string name, Type type)> parameters, Type resultType)
+        {
+            var str = _options.BasePath.Trim('/') + "/" + controllerName + "/" + methodName;
+            var apiDescription = new ApiDescription();
+            var actionDescriptor = new ControllerActionDescriptor
+            {
+                ActionConstraints =
+                    new List<IActionConstraintMetadata>
+                    {
+                        new HttpMethodActionConstraint(new[] {method})
+                    },
+                ActionName = methodName,
+                ControllerName = controllerName,
+                DisplayName = methodName,
+                Parameters = parameters
+                    .Select(p=> new ParameterDescriptor { Name = p.name ?? "", ParameterType = p.type}).ToList(),
+                MethodInfo = new CustomMethodInfo(methodName, methodType),
+                ControllerTypeInfo = controllerType.GetTypeInfo(),
+                RouteValues = new Dictionary<string, string> {{"controller", controllerName}}
+            };
+            apiDescription.ActionDescriptor = actionDescriptor;
+            apiDescription.SupportedRequestFormats.Add(new ApiRequestFormat
+            {
+                MediaType = "application/json"
+            });
+            apiDescription.HttpMethod = method;
+            apiDescription.RelativePath = str;
+
+            if (resultType == typeof(Result))
+            {
+                apiDescription.SupportedResponseTypes.Add(new ApiResponseType
+                {
+                    StatusCode = 200
+                });
+                apiDescription.SupportedResponseTypes.Add(new ApiResponseType
+                {
+                    StatusCode = 422,
+                    Type = typeof(string),
+                    ApiResponseFormats = new List<ApiResponseFormat>
+                    {
+                        new ApiResponseFormat
+                        {
+                            MediaType = "application/json"
+                        }
+                    },
+                    ModelMetadata = _metadataProvider.GetMetadataForType(typeof(string))
+                });
+            }
+            else
+            {
+                apiDescription.SupportedResponseTypes.Add(new ApiResponseType
+                {
+                    StatusCode = 200,
+                    Type = resultType,
+                    ApiResponseFormats = new List<ApiResponseFormat>
+                    {
+                        new ApiResponseFormat
+                        {
+                            MediaType = "application/json"
+                        }
+                    },
+                    ModelMetadata = _metadataProvider.GetMetadataForType(resultType)
+                });
+            }
+
+            apiDescription.SupportedResponseTypes.Add(new ApiResponseType
+            {
+                StatusCode = 401
+            });
+            apiDescription.SupportedResponseTypes.Add(new ApiResponseType
+            {
+                StatusCode = 403
+            });
+
+            foreach (var parameter in parameters)
+            {
+                if (parameter.name == "Metadata") continue; 
+                var type = typeof(IIdentity).IsAssignableFrom(parameter.type) ? typeof(string) : parameter.type ?? typeof(string);
+
+                ((List<ApiParameterDescription>)apiDescription.ParameterDescriptions).Add(new ApiParameterDescription
+                {
+                    Name = parameter.name,
+                    Type = type,
+                    Source = BindingSource.Form,
+                    ModelMetadata = _metadataProvider.GetMetadataForType(type),
+                    IsRequired = true,
+                });
+                
+            }
+            return apiDescription;
+        }
         private string GetDomainName(QueryDefinition definition) 
             => definition.QueryType.Namespace?.Split(".").LastOrDefault()?.Replace("Context","");
 
@@ -219,72 +215,5 @@ namespace Platformex.Web.Swagger
         private string GetDomainName(Type definition)
             => definition.Namespace?.Split(".").LastOrDefault()?.Replace("Context","");
 
-        private void PrepareCommands(List<ApiDescription> apis)
-        {
-            var contexts = _platform.Definitions.Commands.Select(i => (GetDomainName(i.Value), i.Value))
-                .GroupBy(i=>i.Item1).ToList();
-
-            foreach (var domain in contexts)
-            {
-                foreach (var allDefinition in domain.Select(i=>i.Value))
-                {
-                    var type = allDefinition.CommandType;
-                    var name = allDefinition.Name;
-                    var str = _options.BasePath.Trim('/') + "/" + domain.Key + "/" + allDefinition.Name;
-                    var apiDescription1 = new ApiDescription();
-                    var apiDescription2 = apiDescription1;
-                    var actionDescriptor1 = new ControllerActionDescriptor
-                    {
-                        ActionConstraints =
-                            new List<IActionConstraintMetadata>
-                            {
-                                new HttpMethodActionConstraint(new[] {"POST"})
-                            },
-                        ActionName = name,
-                        ControllerName = domain.Key,
-                        DisplayName = allDefinition.Name,
-                        Parameters =
-                            new List<ParameterDescriptor>
-                            {
-                                new ParameterDescriptor {Name = "request", ParameterType = type}
-                            },
-                        MethodInfo = new CustomMethodInfo(name, type),
-                        ControllerTypeInfo = type.GetTypeInfo(),
-                        RouteValues = new Dictionary<string, string> {{"controller", domain.Key}}
-                    };
-                    var actionDescriptor2 = actionDescriptor1;
-                    apiDescription2.ActionDescriptor = actionDescriptor2;
-                    apiDescription1.SupportedRequestFormats.Add(new ApiRequestFormat
-                    {
-                        MediaType = "application/json"
-                    });
-                    apiDescription1.HttpMethod = "PUT";
-                    apiDescription1.RelativePath = str;
-                    apiDescription1.SupportedResponseTypes.Add(new ApiResponseType
-                    {
-                        StatusCode = 200,
-                        Type = typeof(Result),
-                        ApiResponseFormats = new List<ApiResponseFormat>
-                        {
-                            new ApiResponseFormat
-                            {
-                                MediaType = "application/json"
-                            }
-                        },
-                        ModelMetadata = _metadataProvider.GetMetadataForType(typeof(Result))
-                    });
-                    var apiDescription3 = apiDescription1;
-                    ((List<ApiParameterDescription>)apiDescription3.ParameterDescriptions).Add(new ApiParameterDescription
-                    {
-                        Name = "request",
-                        Type = type,
-                        Source = BindingSource.Body,
-                        ModelMetadata = _metadataProvider.GetMetadataForType(type),
-                        IsRequired = true,
-                    });
-                    apis.Add(apiDescription3);
-                }
-            }
-        }
     }
 }
