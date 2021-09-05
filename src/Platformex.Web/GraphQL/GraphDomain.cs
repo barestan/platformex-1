@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using GraphQL;
 using GraphQL.Execution;
 using GraphQL.Language.AST;
 using GraphQL.Resolvers;
@@ -48,8 +49,10 @@ namespace Platformex.Web.GraphQL
         }
 
 
-        private Task<object> Execute(ResolveFieldContext context)
+        private Task<object> Execute(IResolveFieldContext context)
         {
+            if (context.FieldAst.SelectionSet == null) return null;
+
             foreach (var field in context.FieldAst.SelectionSet.Children.Cast<Field>())
             {
                 var queryName = field.Name;
@@ -59,7 +62,7 @@ namespace Platformex.Web.GraphQL
                 var handler = GetQueryHandler(queryName);
                 var f = handler.GetFieldType(true);
 
-                var args = ExecutionHelper.GetArgumentValues(context.Schema, f.Arguments, field.Arguments, new Variables());
+                var args = ExecutionHelper.GetArgumentValues(f.Arguments, field.Arguments, new Variables());
                 return handler.ExecuteQuery(args);
             }
 

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Platformex.Web.GraphQL;
 
@@ -10,10 +9,6 @@ namespace Siam.Host
     {
         public void ConfigureServices(IServiceCollection services)
         {
-            //TODO: Переработать GraphQL для поддержки асинхронных вызовов
-            services.Configure<KestrelServerOptions>(options => { options.AllowSynchronousIO = true; });
-            services.Configure<IISServerOptions>(options => { options.AllowSynchronousIO = true; });
-            
             services.AddControllers();
         }
 

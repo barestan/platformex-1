@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using GraphQL.Execution;
 using GraphQL.Types;
 
 namespace Platformex.Web.GraphQL
@@ -10,7 +11,7 @@ namespace Platformex.Web.GraphQL
     {
         FieldType GetFieldType(bool isInput);
         IGraphType GetQueryItemType(Type modelType, bool isInput);
-        Task<object> ExecuteQuery(Dictionary<string, object> arguments);
+        Task<object> ExecuteQuery(Dictionary<string, ArgumentValue> arguments);
     }
 
     // ReSharper disable once UnusedTypeParameter

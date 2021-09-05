@@ -42,8 +42,11 @@ namespace Platformex.Web.GraphQL
             var qas = new List<QueryArgument>();
             foreach (var prop in parametersType.GetProperties().Where(i => i.CanWrite))
             {
-                var type = GetGraphType(prop.PropertyType, isInput);
+                if (typeof(ICommonMetadata).IsAssignableFrom(prop.PropertyType))
+                    continue;
 
+                var type = GetGraphType(prop.PropertyType, isInput);
+                
                 var allowNulls = prop.GetCustomAttribute<AllowNullAttribute>() != null;
 
                 var description = prop.GetCustomAttribute<DescriptionAttribute>()?.Description;

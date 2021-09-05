@@ -5,9 +5,8 @@ namespace Platformex.Web.GraphQL
 {
     internal class GraphSchemaInternal : Schema
     {
-#pragma warning disable 618
-        public GraphSchemaInternal(IServiceProvider provider) : base(type =>
-#pragma warning restore 618
+        public GraphSchemaInternal(IServiceProvider provider) : base(new CustomServiceProvider(provider))
+            /*, type =>
         {
             var result = (IGraphType)provider.GetService(type);
             if (result == null && type.GetGenericTypeDefinition() == typeof(EnumerationGraphType<>))
@@ -17,9 +16,33 @@ namespace Platformex.Web.GraphQL
             }
 
             return null;
-        })
+        })*/
         {
-            Query = (Root)provider.GetService(typeof(Root));
+            var root = (Root) provider.GetService(typeof(Root));
+            if (root != null) 
+                Query = root;
+        }
+    }
+
+    internal class CustomServiceProvider : IServiceProvider
+    {
+        private readonly IServiceProvider _provider;
+
+        public CustomServiceProvider(IServiceProvider provider)
+        {
+            _provider = provider;
+        }
+
+        public object GetService(Type serviceType)
+        {
+            var result = _provider.GetService(serviceType);
+            if (result == null && serviceType.GetGenericTypeDefinition() == typeof(EnumerationGraphType<>))
+            {
+                //TODO: Refactoring
+                return (IGraphType)Activator.CreateInstance(serviceType);
+            }
+
+            return null;
         }
     }
 }

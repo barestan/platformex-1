@@ -80,22 +80,6 @@ namespace Platformex.Web.Swagger
             });
             return builder;
         }
-
-        //public static IApplicationBuilder UseEventFlySwagger(this IApplicationBuilder app)
-        //{
-
-        //    app.UseSwagger();
-        //    var options = app.ApplicationServices.GetRequiredService<PlatformexOpenApiOptions>();
-        //    app.UseSwaggerUI(c =>
-        //    {
-        //        c.SwaggerEndpoint("/" + options.Url.Trim('/') + "/v1/swagger.json", options.Name);
-
-        //        //c.OAuthClientId("swaggerui");
-        //        //c.OAuthAppName("Swagger UI");
-        //    });
-        //    return app;
-        //}
-
     }
 
     public class DescriptionFilter : IOperationFilter

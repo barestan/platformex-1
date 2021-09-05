@@ -1,8 +1,5 @@
 ﻿using System;
-using GraphQL;
-using GraphQL.Http;
 using GraphQL.Server;
-using GraphQL.Server.Ui.Playground;
 using GraphQL.Types;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,9 +8,9 @@ using Platformex.Web.Swagger;
 
 namespace Platformex.Web.GraphQL
 {
-    public sealed class EventFlyGraphQlOptions
+    public sealed class PlatformexGraphQlOptions
     {
-        public EventFlyGraphQlOptions(string basePath)
+        public PlatformexGraphQlOptions(string basePath)
         {
             BasePath = basePath;
         }
@@ -21,9 +18,9 @@ namespace Platformex.Web.GraphQL
         public string BasePath { get; set; }
     }
 
-    public sealed class EventFlyGraphQlConsoleOptions
+    public sealed class PlatformexGraphQlConsoleOptions
     {
-        public EventFlyGraphQlConsoleOptions(string basePath)
+        public PlatformexGraphQlConsoleOptions(string basePath)
         {
             BasePath = basePath;
         }
@@ -48,33 +45,36 @@ namespace Platformex.Web.GraphQL
 
             app.UseMiddleware<PlatformexMiddleware>();
             
-            if (app.ApplicationServices.GetService(typeof(EventFlyGraphQlOptions)) is EventFlyGraphQlOptions optionsGraphQl)
+            if (app.ApplicationServices.GetService(typeof(PlatformexGraphQlOptions)) is PlatformexGraphQlOptions optionsGraphQl)
                 app.UseGraphQL<ISchema>("/" + optionsGraphQl.BasePath.Trim('/'));
 
-            if (app.ApplicationServices.GetService(typeof(EventFlyGraphQlConsoleOptions)) is EventFlyGraphQlConsoleOptions optionsConsole)
-                app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
-                {
-                    Path = "/" + optionsConsole.BasePath.Trim('/')
-                });
+            if (app.ApplicationServices.GetService(typeof(PlatformexGraphQlConsoleOptions)) is PlatformexGraphQlConsoleOptions optionsConsole)
+                app.UseGraphQLPlayground("/" + optionsConsole.BasePath.Trim('/'));
             return app;
         }
-        public static PlatformBuilder ConfigureGraphQl(this PlatformBuilder builder, Action<EventFlyGraphQlOptions> optionsBuilder)
+        public static PlatformBuilder ConfigureGraphQl(this PlatformBuilder builder, Action<PlatformexGraphQlOptions> optionsBuilder)
         {
-            var options = new EventFlyGraphQlOptions("graphql");
+            var options = new PlatformexGraphQlOptions("graphql");
 
             builder.AddConfigureServicesActions(services =>
             {
                 services.AddSingleton(options);
-                services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
-                services.AddSingleton<IDocumentWriter, DocumentWriter>();
+                //services.AddSingleton<IDocumentExecuter, DocumentExecuter>();
+                //services.AddSingleton<IDocumentWriter, DocumentWriter>();
 
                 services.AddSingleton<Root>();
                 services.AddSingleton<ISchema, GraphSchemaInternal>();
                 services.AddGraphQL(_ =>
-                {
-                    _.EnableMetrics = true;
-                    _.ExposeExceptions = true;
-                });
+                    {
+                        _.EnableMetrics = true;
+                        //_.ExposeExceptions = true;
+                    })
+                    .AddSystemTextJson()
+                    .AddErrorInfoProvider(opt => opt.ExposeExceptionStackTrace = true);
+                
+                //services.AddTransient<IGraphQLRequestDeserializer, GraphQLRequestDeserializer>();
+
+
 
                 foreach (var query in builder.Definitions.Queries)
                 {
@@ -88,9 +88,9 @@ namespace Platformex.Web.GraphQL
             return builder;
         }
 
-        public static PlatformBuilder WithConsole(this PlatformBuilder builder, Action<EventFlyGraphQlConsoleOptions> builderOptions)
+        public static PlatformBuilder WithConsole(this PlatformBuilder builder, Action<PlatformexGraphQlConsoleOptions> builderOptions)
         {
-            var options = new EventFlyGraphQlConsoleOptions("graphql-console");
+            var options = new PlatformexGraphQlConsoleOptions("graphql-console");
             builderOptions(options);
             builder.AddConfigureServicesActions(services =>
             {
@@ -100,19 +100,5 @@ namespace Platformex.Web.GraphQL
 
             return builder;
         }
-
-        //public static IApplicationBuilder UseEventFlyGraphQl(this IApplicationBuilder app)
-        //{
-        //    var options = app.ApplicationServices.GetRequiredService<EventFlyGraphQlOptions>();
-        //    var optionsConsole = app.ApplicationServices.GetRequiredService<EventFlyGraphQlConsoleOptions>();
-
-
-        //    app.UseGraphQL<ISchema>("/" + options.BasePath.Trim('/'));
-        //    app.UseGraphQLPlayground(new GraphQLPlaygroundOptions
-        //    {
-        //        Path = "/" + optionsConsole.BasePath.Trim('/')
-        //    });
-        //    return app;
-        //}
     }
 }

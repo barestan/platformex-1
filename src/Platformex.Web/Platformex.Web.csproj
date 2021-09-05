@@ -6,24 +6,19 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="GraphQL" Version="2.4.0" />
-      <PackageReference Include="GraphQL.Server.Ui.Playground" Version="3.4.0" />
+      <PackageReference Include="GraphQL" Version="4.6.0" />
+      <PackageReference Include="GraphQL.Server.Core" Version="5.0.2" />
+      <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="5.0.2" />
+      <PackageReference Include="GraphQL.Server.Transports.AspNetCore.NewtonsoftJson" Version="5.0.2" />
+      <PackageReference Include="GraphQL.Server.Transports.AspNetCore.SystemTextJson" Version="5.0.2" />
+      <PackageReference Include="GraphQL.Server.Ui.Playground" Version="5.0.2" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.5" />
+      <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.1" />
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\Platformex.Infrastructure\Platformex.Infrastructure.csproj" />
       <ProjectReference Include="..\Platformex\Platformex.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Reference Include="GraphQL.Server.Core, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>libs\GraphQL.Server.Core.dll</HintPath>
-      </Reference>
-      <Reference Include="GraphQL.Server.Transports.AspNetCore, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-        <HintPath>libs\GraphQL.Server.Transports.AspNetCore.dll</HintPath>
-      </Reference>
     </ItemGroup>
 
 </Project>
