@@ -2,6 +2,7 @@ using System;
 using Xunit;
 using Orleans.TestKit;
 using Platformex.Application;
+using Platformex.Domain;
 using Platformex.Tests;
 using Siam.Application;
 using Siam.MemoContext;
@@ -97,6 +98,55 @@ namespace Siam.Tests
                 //Тогда (проверка результатов)
                 .ThenExpect<MemoId, UpdateMemo>(command => command.Document != null)
                 .ThenExpect<MemoId, UpdateMemo>(command => command.Document != null);
+        }
+
+        [Fact]
+        public void TestSubscriber()
+        {
+            var id = MemoId.New;
+
+            var docId = Guid.NewGuid().ToString();
+            var docNumber = new DocumentNumber("100");
+            var docAddress = new Address("12700", "Россия", 
+                "Москва", "проспект Мира", "1");
+            var userId = "TestUser";
+
+            var fixture = new SubscriberFixture<MemoSigningSubscriber, MemoId, MemoUpdated>(this);
+
+            //BDD тест (сценарий)
+            fixture.For()
+
+                //Допустим (предусловия)
+                .GivenNothing()
+
+                //Когда (тестируемые действия)
+                .When(new MemoUpdated(id, new MemoDocument(docId, docNumber, docAddress)),
+                    new EventMetadata { UserId = userId})
+
+                //Тогда (проверка результатов)
+                .ThenExpect<MemoId, SignMemo>(command =>
+                    command.Id == id
+                    && command.UserId == userId);
+        }
+
+        
+        [Fact]
+        public void TestJob()
+        {
+            var fixture = new JobFixture<MemoJob>(this);
+
+            //BDD тест (сценарий)
+            fixture.For()
+
+                //Допустим (предусловия)
+                .GivenNothing()
+
+                //Когда (тестируемые действия)
+                .WhenTimer()
+
+                //Тогда (проверка результатов)
+                .ThenExpect<MemoId, UpdateMemo>(command =>
+                    command.Document.CustomerAddress.City == "Москва");
         }
     }
 }

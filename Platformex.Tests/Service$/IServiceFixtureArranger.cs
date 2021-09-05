@@ -8,5 +8,6 @@ namespace Platformex.Tests
     {
         IServiceFixtureArranger<TServiceInterface, TService> For();
         IServiceFixtureExecutor<TServiceInterface, TService> GivenNothing();
+        IServiceFixtureExecutor<TServiceInterface, TService> GivenMetadata(ServiceMetadata metadata);
     }
 }

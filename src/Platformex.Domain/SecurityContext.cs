@@ -6,12 +6,15 @@ namespace Platformex.Domain
 {
     public class SecurityContext
     {
+#pragma warning disable 649
         private string[] _roles;
+#pragma warning restore 649
 
         public bool IsAuthorized => UserId != null;
 
         public string UserId { get; private set; }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Local
         public string UserName { get; private set; }
 
         internal SecurityContext(ICommonMetadata metadata)
@@ -23,11 +26,13 @@ namespace Platformex.Domain
         // ReSharper disable once UnusedParameter.Local
         private void LoadMetadata(ICommonMetadata metadata)
         {
-            //TODO: доделать при реализации интеграции с IdentityServer4
-            //Пока тестовые данные
+            /*//Пока тестовые данные
             UserId = Guid.NewGuid().ToString();
             _roles = new[] { "admin", "user" };
-            UserName = "test_user";
+            UserName = "test_user";*/
+
+            UserId = metadata.UserId;
+            //TODO: доделать при реализации интеграции с IdentityServer4
         }
 
         public void HasRoles(params string[] roles)

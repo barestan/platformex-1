@@ -39,6 +39,12 @@ namespace Platformex.Tests
         }
 
         public IServiceFixtureExecutor<TServiceInterface,TService> GivenNothing() => this;
+        private ServiceMetadata _metadata = new ServiceMetadata();
+        public IServiceFixtureExecutor<TServiceInterface, TService> GivenMetadata(ServiceMetadata metadata)
+        {
+            _metadata = metadata;
+            return this;
+        }
 
         public IServiceFixtureAsserter<TServiceInterface,TService> AndWhen(Func<TServiceInterface, Task<object>> testFunc) 
             => When(testFunc);
@@ -77,6 +83,7 @@ namespace Platformex.Tests
         public IServiceFixtureAsserter<TServiceInterface,TService> When(Func<TServiceInterface, Task<object>> testFunc)
         {
             StartMonitoring();
+            _service.SetMetadata(_metadata);
             var result = testFunc(_service).GetAwaiter().GetResult();
             if (result == null)
             {
