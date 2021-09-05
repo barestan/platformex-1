@@ -59,7 +59,7 @@ namespace Platformex.Infrastructure
             //TODO: Рефакторнг
             foreach (var type in assembly.GetTypes())
             {
-                if (type.GetInterfaces().Contains(typeof(IDomainService)))
+                if (type.GetInterfaces().Contains(typeof(IService)))
                 {
                     RegisterService(type);
                 }

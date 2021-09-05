@@ -54,6 +54,10 @@ namespace Platformex.Domain
         private IDisposable _timer;
         protected IDomainEvent PinnedEvent;
 
+        public TDomainService Service<TDomainService>() where TDomainService : IService
+        // ReSharper disable once PossibleNullReferenceException
+            => ServiceProvider.GetService<IPlatform>().Service<TDomainService>();
+
         protected Task<Result> ExecuteAsync<TIdentity>(ICommand<TIdentity> command) 
             where TIdentity : Identity<TIdentity>
         {

@@ -7,7 +7,7 @@ namespace Platformex.Application
     {
         Guid Id { get; set; }
     }
-    public abstract class AggregateStateEx<TIdentity, TEventApplier, TModel> :AggregateState<TIdentity, TEventApplier> 
+    public abstract class AggregateStateEx<TIdentity, TAggregateState, TModel> :AggregateState<TIdentity, TAggregateState> 
         where TIdentity : Identity<TIdentity>
         where TModel : IModel
     {
@@ -15,11 +15,11 @@ namespace Platformex.Application
         protected readonly IDbProvider<TModel> Provider;
         protected TModel Model;
 
-        public static TEventApplier FromModel(TModel model)
+        public static TAggregateState FromModel(TModel model)
         {
-            var item = (TEventApplier)Activator.CreateInstance(typeof(TEventApplier), new object[]{null});
+            var item = (TAggregateState)Activator.CreateInstance(typeof(TAggregateState), new object[]{null});
 
-            (item as AggregateStateEx<TIdentity, TEventApplier, TModel>)?.SetModel(model);
+            (item as AggregateStateEx<TIdentity, TAggregateState, TModel>)?.SetModel(model);
             return item;
         }
         private void SetModel(TModel model)

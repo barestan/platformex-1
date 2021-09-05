@@ -15,6 +15,6 @@ namespace Platformex
         Task<object> QueryAsync(IQuery query);
         Task<Result> ExecuteAsync(string aggregateId, ICommand command);
         Task PublishEvent(IDomainEvent domainEvent);
-        TDomainService Service<TDomainService>() where TDomainService : IDomainService;
+        TDomainService Service<TDomainService>() where TDomainService : IService;
     }
 }

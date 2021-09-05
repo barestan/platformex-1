@@ -3,7 +3,7 @@ using Orleans;
 
 namespace Platformex
 {
-    public interface IDomainService : IGrainWithGuidKey
+    public interface IService : IGrainWithGuidKey
     {
         Task SetMetadata(ServiceMetadata metadata);
     }

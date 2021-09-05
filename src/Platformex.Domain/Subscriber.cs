@@ -99,6 +99,10 @@ namespace Platformex.Domain
 
             Logger.LogInformation($"(Subscriber [{GetSubscriberName()}] activated.");
         }
+        public TDomainService Service<TDomainService>() where TDomainService : IService
+        // ReSharper disable once PossibleNullReferenceException
+            => ServiceProvider.GetService<IPlatform>().Service<TDomainService>();
+
         protected Task<Result> ExecuteAsync<T>(ICommand<T> command) 
             where T : Identity<T>
         {

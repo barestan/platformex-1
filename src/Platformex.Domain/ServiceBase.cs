@@ -6,31 +6,9 @@ using Orleans;
 
 namespace Platformex.Domain
 {
-    public abstract class DomainService : Grain, IIncomingGrainCallFilter
+    public abstract class ServiceBase : Grain, IIncomingGrainCallFilter
     {
-        private ILogger _logger;
-        protected ServiceMetadata Metadata { get; private set; } = new ServiceMetadata();
-        protected ILogger Logger => GetLogger();
-        private ILogger GetLogger() 
-            => _logger ??= ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
-
-        protected virtual string GetPrettyName() => $"{GetJobName()}:{this.GetPrimaryKeyString()}";
-        protected virtual string GetJobName() => GetType().Name;
         protected SecurityContext SecurityContext { get; private set; }
-
-        public override Task OnActivateAsync()
-        {
-            Logger.LogInformation($"(DomainService [{GetPrettyName()}] activated.");
-
-            return base.OnDeactivateAsync();
-        }
-
-        public override Task OnDeactivateAsync()
-        {
-            Logger.LogInformation($"(DomainService [{GetPrettyName()}] deactivated.");
-
-            return base.OnDeactivateAsync();
-        }
 
         protected Task<Result> ExecuteAsync<TIdentity>(ICommand<TIdentity> command) 
             where TIdentity : Identity<TIdentity>
@@ -38,6 +16,34 @@ namespace Platformex.Domain
             var platform = ServiceProvider.GetService<IPlatform>();
             return platform?.ExecuteAsync(command.Id.Value, command);
         }
+        
+        private ILogger _logger;
+        protected ServiceMetadata Metadata { get; private set; } = new ServiceMetadata();
+        protected ILogger Logger => GetLogger();
+        private ILogger GetLogger() 
+            => _logger ??= ServiceProvider.GetService<ILoggerFactory>()?.CreateLogger(GetType());
+
+        public TDomainService Service<TDomainService>() where TDomainService : IService
+        // ReSharper disable once PossibleNullReferenceException
+            => ServiceProvider.GetService<IPlatform>().Service<TDomainService>();
+
+        protected virtual string GetPrettyName() => $"{GetJobName()}:{IdentityString}";
+        protected virtual string GetJobName() => GetType().Name;
+
+        public override Task OnActivateAsync()
+        {
+            Logger.LogInformation($"(Service [{GetPrettyName()}] activated.");
+
+            return base.OnDeactivateAsync();
+        }
+
+        public override Task OnDeactivateAsync()
+        {
+            Logger.LogInformation($"(Service [{GetPrettyName()}] deactivated.");
+
+            return base.OnDeactivateAsync();
+        }
+
 
         public Task SetMetadata(ServiceMetadata metadata)
         {
@@ -48,7 +54,7 @@ namespace Platformex.Domain
         {
             if (context.InterfaceMethod.Name != "SetMetdadta")
             {
-                Logger.LogInformation($"(DomainService method [{context.InterfaceMethod.Name}] invoking...");
+                Logger.LogInformation($"(Service method [{context.InterfaceMethod.Name}] invoking...");
             
                 var sc = new SecurityContext(Metadata);
                 //Проверим права
@@ -73,7 +79,7 @@ namespace Platformex.Domain
                     return;
                 }
                
-                Logger.LogInformation($"(DomainService method [{context.InterfaceMethod.Name}] invoked...");
+                Logger.LogInformation($"(Service method [{context.InterfaceMethod.Name}] invoked...");
             }
             else
             {

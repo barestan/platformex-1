@@ -5,14 +5,19 @@ using Platformex.Domain;
 
 namespace Platformex.Application
 {
-    public abstract class AggregateState<TIdentity, TEventApplier> :
+    public abstract class AggregateState<TIdentity, TAggregateState> :
         IAggregateState<TIdentity> where TIdentity : Identity<TIdentity>
     {
-        private static readonly IReadOnlyDictionary<Type, Action<TEventApplier, IAggregateEvent>> ApplyMethods; 
+        protected abstract Task<bool> LoadStateInternal(TIdentity id);
+        public abstract Task BeginTransaction();
+        public abstract Task CommitTransaction();
+        public abstract Task RollbackTransaction();
+
+        private static readonly IReadOnlyDictionary<Type, Action<TAggregateState, IAggregateEvent>> ApplyMethods; 
 
         static AggregateState()
         {
-            ApplyMethods = typeof(TEventApplier).GetAggregateEventApplyMethods<TIdentity, TEventApplier>();
+            ApplyMethods = typeof(TAggregateState).GetAggregateEventApplyMethods<TIdentity, TAggregateState>();
         }
         public TIdentity Identity { get; protected set; }
 
@@ -22,29 +27,22 @@ namespace Platformex.Application
             return LoadStateInternal(id);
         }
 
-        protected abstract Task<bool> LoadStateInternal(TIdentity id);
-
         public async Task Apply(IAggregateEvent<TIdentity> e)
         {
             await BeforeApply(e);
             
             var aggregateEventType = e.GetType();
-            Action<TEventApplier, IAggregateEvent> applier;
+            Action<TAggregateState, IAggregateEvent> applier;
 
             if (!ApplyMethods.TryGetValue(aggregateEventType, out applier))
             {
                 throw new MissingMethodException($"missing HandleAsync({aggregateEventType.Name})");
             }
 
-            applier((TEventApplier) (object) this, e);
+            applier((TAggregateState) (object) this, e);
             
             await AfterApply(e);
         }
-
-        public abstract Task BeginTransaction();
-        public abstract Task CommitTransaction();
-        public abstract Task RollbackTransaction();
-
 
         protected virtual Task BeforeApply(IAggregateEvent<TIdentity> id) => Task.CompletedTask;
 

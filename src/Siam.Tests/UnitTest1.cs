@@ -61,18 +61,42 @@ namespace Siam.Tests
             var id = MemoId.New;
             var fixture = new SagaFixture<AutoConfimMemoSaga, AutoConfirmSagaState>(this);
 
+            //BDD тест (сценарий)
             fixture.For()
-                .GivenNothing()
-                
-                .When<MemoId, MemoUpdated>(new MemoUpdated(id, new MemoDocument(Guid.NewGuid().ToString(), 
-                    new DocumentNumber("1"), new Address("127000", "Россия", "Москва", "проспект Мира", "1"))))
-                .ThenExpect<MemoId, SignMemo>(command => command.Id == id)
-                
-                .AndWhen<MemoId, MemoSigned>(new MemoSigned(id))
-                .ThenExpect<MemoId, ConfirmSigningMemo>(e => e.Id == id);
 
+                //Допустим (предусловия)
+                .GivenNothing()
+
+                //Когда (тестируемые действия)
+                .When<MemoId, SigningStarted>(new SigningStarted(id, "TestUser"))
+
+                //Тогда (проверка результатов)
+                .ThenExpect<MemoId, ConfirmSigningMemo>(command => command.Id == id)
+
+                //Когда (тестируемые действия)
+                .AndWhen<MemoId, MemoSigned>(new MemoSigned(id))
+
+                //Тогда (проверка результатов)
+                .ThenExpectState(state => state.UserId == "TestUser");
         }
-        
-        
+
+        [Fact]
+        public void TestService()
+        {
+            var fixture = new ServiceFixture<IMemoService, MemoService>(this);
+
+            //BDD тест (сценарий)
+            fixture.For()
+
+                //Допустим (предусловия)
+                .GivenNothing()
+
+                //Когда (тестируемые действия)
+                .When(async service => await service.CreateMemos(2))
+
+                //Тогда (проверка результатов)
+                .ThenExpect<MemoId, UpdateMemo>(command => command.Document != null)
+                .ThenExpect<MemoId, UpdateMemo>(command => command.Document != null);
+        }
     }
 }

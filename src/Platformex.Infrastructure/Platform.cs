@@ -110,7 +110,7 @@ namespace Platformex.Infrastructure
                 .OnNextAsync(domainEvent).ConfigureAwait(false);        
         }
 
-        public TDomainService Service<TDomainService>() where TDomainService : IDomainService 
+        public TDomainService Service<TDomainService>() where TDomainService : IService 
             => _client.GetGrain<TDomainService>(Guid.NewGuid());
     }
 }

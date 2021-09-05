@@ -28,7 +28,7 @@ namespace Platformex.Tests
             return Task.CompletedTask;
         }
 
-        public TDomainService Service<TDomainService>() where TDomainService : IDomainService
+        public TDomainService Service<TDomainService>() where TDomainService : IService
         {
             throw new NotImplementedException();
         }

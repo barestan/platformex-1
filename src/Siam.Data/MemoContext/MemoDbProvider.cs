@@ -18,21 +18,18 @@ namespace Siam.Data.MemoContext
         }
 
         private async Task<MemoModel> FindAsync(Guid id) 
-            => await _dbContext.Memos.Where(i => i.Id == id).Select(i=>i.Model).FirstOrDefaultAsync();
+            => await _dbContext.Memos.Where(i => i.Id == id)
+                .Select(i=>i.Model).FirstOrDefaultAsync();
 
         private MemoModel Create(Guid id) => new MemoModel {Id = id};
 
         public async Task<(MemoModel model, bool isCreated)> LoadOrCreate(Guid id)
         {
             var model = await FindAsync(id);
-            var isCreated = true;
-            if (model == null)
-            {
-                isCreated = false;
-                model = Create(id);
-            }
+            if (model != null) return (model, true);
 
-            return (model, isCreated);
+            model = Create(id);
+            return (model, false);
         }
         public async Task SaveChangesAsync(Guid id, MemoModel model)
         {
@@ -46,19 +43,13 @@ namespace Siam.Data.MemoContext
             _dbContext.Entry(item).State = EntityState.Detached;
         }
 
-        public async Task BeginTransaction()
-        {
+        public async Task BeginTransaction() => 
             await _dbContext.Database.BeginTransactionAsync();
-        }
 
-        public async Task CommitTransaction()
-        {
+        public async Task CommitTransaction() => 
             await _dbContext.Database.CommitTransactionAsync();
-        }
 
-        public async Task RollbackTransaction()
-        {
+        public async Task RollbackTransaction() => 
             await _dbContext.Database.RollbackTransactionAsync();
-        }
     }
 }

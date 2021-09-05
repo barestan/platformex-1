@@ -13,17 +13,17 @@ using Orleans;
 
 namespace Platformex.Domain
 {
-    public abstract class Aggregate<TIdentity, TState, TEventApplier> : Grain, IAggregate<TIdentity>, IIncomingGrainCallFilter
+    public abstract class Aggregate<TIdentity, TState, TAggregate> : Grain, IAggregate<TIdentity>, IIncomingGrainCallFilter
         where TIdentity : Identity<TIdentity>
         where TState : IAggregateState<TIdentity>
     {
-        private static readonly IReadOnlyDictionary<Type, Func<TEventApplier, ICommand, Task<Result>>> DoCommands;
+        private static readonly IReadOnlyDictionary<Type, Func<TAggregate, ICommand, Task<Result>>> DoCommands;
         private ICommand _pinnedCommand;
 
         protected SecurityContext SecurityContext { get; private set; }
         static Aggregate()
         {
-            DoCommands = typeof(TEventApplier).GetAggregateDoMethods<TIdentity, TEventApplier>();
+            DoCommands = typeof(TAggregate).GetAggregateDoMethods<TIdentity, TAggregate>();
         }
         public async Task<Result> DoAsync(ICommand command)
         {
@@ -38,7 +38,7 @@ namespace Platformex.Domain
 
             try
             {
-                result = await applier((TEventApplier) (object) this, command);
+                result = await applier((TAggregate) (object) this, command);
             }
             catch (Exception e)
             {

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Platformex;
 using Platformex.Domain;
 
 namespace Siam.MemoContext.Domain
 {
-    public class MemoService : DomainService, IMemoService
+    public class MemoService : ServiceBase, IMemoService
     {
-        public async Task<Result> CreateMemos(int memoCount)
+        public async Task<int> CreateMemos(int memoCount)
         {
             var rnd = new Random();
 
@@ -21,7 +20,7 @@ namespace Siam.MemoContext.Domain
                             "проспект Мира",rnd.Next(1000).ToString()
                         ))));
             }
-            return Result.Success;
+            return memoCount;
         }
     }
 }

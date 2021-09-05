@@ -7,7 +7,8 @@ using System.Xml.Serialization;
 
 namespace Platformex.Application
 {
-    public class InMemoryDbProvider<TModel> : IDbProvider<TModel> where TModel : new()
+    public class InMemoryDbProvider<TModel> : IDbProvider<TModel> 
+        where TModel : IModel, new()
     {
         private static readonly Dictionary<Guid, TModel> Items = new();
         private Dictionary<Guid, TModel> _transactionalItems;

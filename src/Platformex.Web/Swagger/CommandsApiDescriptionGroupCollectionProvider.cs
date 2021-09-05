@@ -78,7 +78,7 @@ namespace Platformex.Web.Swagger
                 {
                     var type = service.ServiceType;
                     var serviceInterface = type.GetInterfaces()
-                        .FirstOrDefault(i => typeof(IDomainService).IsAssignableFrom(i));
+                        .FirstOrDefault(i => typeof(IService).IsAssignableFrom(i));
 
                     foreach (var methodInfo in service.GetMethods())
                     {

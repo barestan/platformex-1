@@ -113,7 +113,7 @@ namespace Platformex.Web.Swagger
                 x.IsGenericType &&
                 x.GetGenericTypeDefinition() == typeof(ICommand<>));
 
-            if (typeof(IDomainService).IsAssignableFrom(actionType))
+            if (typeof(IService).IsAssignableFrom(actionType))
             {
                 operation.Summary = desc.MethodInfo.GetCustomAttribute<DescriptionAttribute>()?.Description;
             }
